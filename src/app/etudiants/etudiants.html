@@ -1,0 +1,54 @@
+<nav class="navbar">
+  <div class="navbar-brand">
+    <div style="background-color: #fff; color: #1a365d; padding: 5px 10px; border-radius: 4px; font-weight: 900; font-size: 0.9rem;">
+      UCHK
+    </div>
+    <span class="navbar-logo-text">Portail Numérique</span>
+  </div>
+
+  <div class="navbar-menu">
+    <a routerLink="/dashboard" class="nav-link active">Étudiants</a>
+    <a routerLink="/budgets" class="nav-link">Budgets</a>
+    <a routerLink="/formations" class="nav-link">Formations</a>
+  </div>
+
+  <div>
+    <button (click)="onLogout()" class="btn-logout">Déconnexion</button>
+  </div>
+</nav>
+
+<div class="page-container">
+  
+  <div class="page-header">
+    <h2>Gestion des Étudiants</h2>
+    <p style="color: #718096; margin: 0;">Liste des inscrits enregistrés dans la base de données de l'université.</p>
+  </div>
+
+  <div class="custom-table-card">
+    <table class="custom-table">
+      <thead>
+        <tr>
+          <th>Prénom</th>
+          <th>Nom</th>
+          <th>Email</th>
+          <th>Formation</th>
+          <th>Promotion</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let e of listeEtudiants">
+          <td><strong>{{ e.prenom }}</strong></td>
+          <td>{{ e.nom | uppercase }}</td>
+          <td>{{ e.email ? e.email : 'Non renseigné' }}</td>
+          <td>
+            <span style="background-color: #ebf8ff; color: #2b6cb0; padding: 4px 8px; border-radius: 12px; font-size: 0.85rem; font-weight: 500;">
+              {{ e.formation ? e.formation : 'Général' }}
+            </span>
+          </td>
+          <td>{{ e.promo ? e.promo : 'N/A' }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>

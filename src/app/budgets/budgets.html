@@ -1,0 +1,86 @@
+<div class="page-container">
+  
+  <div class="page-header" style="display: flex; justify-content: space-between; align-items: center;">
+    <div>
+      <h2>Suivi Budgétaire de l'Université</h2>
+      <p style="color: #718096; margin: 0;">Historique et taux d'exécution des enveloppes de l'établissement.</p>
+    </div>
+    <div style="display: flex; gap: 10px;">
+      <button (click)="exporterPDF()" style="background-color: #4a5568; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+        🖨️ Exporter en PDF
+      </button>
+
+      <button (click)="basculerFormulaire()" style="background-color: #2b6cb0; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">
+        {{ afficherFormulaire ? '✖ Fermer' : '➕ Ajouter un Budget' }}
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="afficherFormulaire" class="custom-table-card" style="padding: 20px; margin-bottom: 25px; border-left: 4px solid #2b6cb0;">
+    <h3 style="margin-top: 0; margin-bottom: 15px; color: #1a365d;">Nouvel Exercice Budgétaire</h3>
+    
+    <form (submit)="validerAjoutBudget($event)" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; align-items: flex-end;">
+      <div>
+        <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Année</label>
+        <input type="number" name="annee" [(ngModel)]="nouveauBudget.annee" required style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;">
+      </div>
+      <div>
+        <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Montant Projeté (FCFA)</label>
+        <input type="number" name="montantProjet" [(ngModel)]="nouveauBudget.montantProjet" required style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;">
+      </div>
+      <div>
+        <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Montant Réalisé (FCFA)</label>
+        <input type="number" name="montantRealise" [(ngModel)]="nouveauBudget.montantRealise" required style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;">
+      </div>
+      <div>
+        <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">URL Note d'Orientation</label>
+        <input type="text" name="noteOrientationUrl" [(ngModel)]="nouveauBudget.noteOrientationUrl" style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;" placeholder="https://...">
+      </div>
+      <div>
+        <button type="submit" style="width: 100%; background-color: #48bb78; color: white; border: none; padding: 9px; border-radius: 4px; font-weight: bold; cursor: pointer;">
+          Enregistrer en Base
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div class="custom-table-card">
+    <table class="custom-table">
+      <thead>
+        <tr>
+          <th>Année Budgétaire</th>
+          <th>Montant Projeté (Prévisions)</th>
+          <th>Montant Réalisé (Dépenses)</th>
+          <th>Taux d'Exécution</th>
+          <th>Note d'Orientation</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let b of listeBudgets">
+          <tr *ngIf="b.annee">
+            <td><strong>Exercice {{ b.annee }}</strong></td>
+            <td>{{ b.montantProjet | number }} FCFA</td>
+            <td>{{ b.montantRealise | number }} FCFA</td>
+            <td>
+              <span [style.background-color]="(b.montantRealise / b.montantProjet) >= 0.75 ? '#f0fff4' : '#fff5f5'"
+                    [style.color]="(b.montantRealise / b.montantProjet) >= 0.75 ? '#38a169' : '#e53e3e'"
+                    style="padding: 4px 8px; border-radius: 12px; font-size: 0.85rem; font-weight: bold;">
+                {{ (b.montantRealise / b.montantProjet) * 100 | number:'1.0-2' }} %
+              </span>
+            </td>
+            <td>
+              <a *ngIf="b.noteOrientationUrl" [href]="b.noteOrientationUrl" target="_blank" 
+                 style="display: inline-block; background-color: #ebf8ff; color: #2b6cb0; text-decoration: none; padding: 6px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: 500;">
+                📄 Ouvrir le PDF
+              </a>
+              <span *ngIf="!b.noteOrientationUrl" style="color: #a0aec0; font-size: 0.85rem; font-style: italic;">
+                Aucun document lié
+              </span>
+            </td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </table>
+  </div>
+
+</div>
