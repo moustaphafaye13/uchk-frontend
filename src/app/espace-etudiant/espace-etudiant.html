@@ -1,0 +1,167 @@
+<nav class="navbar">
+  <div class="navbar-brand">
+    <span class="navbar-logo-text"> PORTAIL ÉTUDIANT UNCHK</span>
+  </div>
+  <button (click)="deconnecter()" class="btn-logout">Se déconnecter</button>
+</nav>
+
+<div *ngIf="!chargement && profilEtudiant" class="page-container">
+  
+  <div class="page-header">
+    <h2>Bienvenue, {{ profilEtudiant.prenom }}</h2>
+    <p class="subtitle">{{ profilEtudiant.formation }} • Promotion {{ profilEtudiant.promo }}</p>
+  </div>
+
+  <div class="tabs-container">
+    <button (click)="changerOnglet('tableau-de-bord')" [class.tab-active]="ongletActif === 'tableau-de-bord'" class="tab-btn">
+       Aperçu Général
+    </button>
+    <button (click)="changerOnglet('resultats')" [class.tab-active]="ongletActif === 'resultats'" class="tab-btn">
+       Mes Résultats
+    </button>
+    <button (click)="changerOnglet('cours')" [class.tab-active]="ongletActif === 'cours'" class="tab-btn">
+       Programme & Cours
+    </button>
+    <button (click)="changerOnglet('profil')" [class.tab-active]="ongletActif === 'profil'" class="tab-btn">
+       Mon Profil & Sécurité
+    </button>
+  </div>
+
+  <div class="tab-content-area">
+
+    <div *ngIf="ongletActif === 'tableau-de-bord'">
+      <div class="custom-table-card padding-card" style="width: 100%; box-sizing: border-box;">
+        <h3 class="card-title" style="margin-bottom: 20px;"> Prochains Cours</h3>
+        
+        <div *ngFor="let edt of emploisDuTemps" class="edt-item" style="border-left: 4px solid #2b6cb0; padding-left: 15px; margin-bottom: 20px; padding-bottom: 5px;">
+          <strong style="font-size: 15px; color: #2b6cb0;">{{ edt.jour }} - de {{ edt.heureDebut }} à {{ edt.heureFin }}</strong><br>
+          
+          <span style="font-weight: 600; color: #2d3748; display: inline-block; margin-top: 6px; font-size: 16px;">
+            {{ edt.cours?.intitule || 'Cours Planifié' }}
+          </span> 
+          <small *ngIf="edt.cours?.code" style="color: #718096; font-size: 13px;"> ({{ edt.cours.code }})</small><br>
+          
+          <div style="margin-top: 8px; font-size: 14px;">
+            <span style="color: #4a5568;">📍 Lieu : </span>
+            
+            <span *ngIf="edt.salle && (edt.salle.startsWith('http://') || edt.salle.startsWith('https://'))">
+              <a [href]="edt.salle" target="_blank" style="color: #2b6cb0; font-weight: bold; text-decoration: underline; word-break: break-all;">
+                Rejoindre la classe virtuelle 
+              </a>
+            </span>
+            
+            <span *ngIf="edt.salle && !(edt.salle.startsWith('http://') || edt.salle.startsWith('https://'))" style="font-weight: 600; color: #2d3748;">
+              {{ edt.salle }}
+            </span>
+          </div>
+        </div>
+
+        <div *ngIf="emploisDuTemps.length === 0" style="font-size: 14px; color: #a0aec0; text-align: center; font-style: italic; padding: 30px 0;">
+          Aucune séance de cours n'est planifiée pour le moment.
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="ongletActif === 'resultats'" class="custom-table-card">
+      <div class="card-header-blue"> Relevé de notes provisoire</div>
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Matière</th>
+            <th>Semestre</th>
+            <th>Note</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let n of listeNotes">
+            <td class="bold-text">{{ n.cours?.code }}</td>
+            <td>{{ n.cours?.intitule }}</td>
+            <td>{{ n.semestre }}</td>
+            <td class="note-text">{{ n.valeur }} / 20</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div *ngIf="ongletActif === 'cours'">
+      <div class="custom-table-card padding-card">
+        <h3 class="card-title">📚 Liste des Unités d'Enseignement (UE) ouvertes</h3>
+        <div class="courses-grid-layout">
+          
+          <div *ngFor="let cours of listeCoursBdd" class="course-badge-card" style="display: flex; flex-direction: column; justify-content: space-between; padding: 15px; min-height: 240px; background: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+            <div>
+              <span class="course-code-tag" style="background-color: #2b6cb0; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: bold;">
+                {{ cours.code && cours.code.trim() !== '' ? cours.code : 'UE Spéciale' }}
+              </span>
+              <h4 class="course-title-text" style="margin: 12px 0 6px 0; color: #2d3748; font-size: 16px;">
+                {{ cours.intitule && cours.intitule.trim() !== '' ? cours.intitule : 'Intitulé non spécifié' }}
+              </h4>
+              <small class="course-credits-text" style="display: block; margin-bottom: 10px; color: #718096;">
+                Valeur : {{ cours.credits || 6 }} crédits
+              </small>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 6px; margin-top: auto;">
+              
+              <div *ngIf="cours.lienSupport">
+                <a [href]="cours.lienSupport" target="_blank" class="btn-connecter btn-small" 
+                   style="display: inline-block; text-align: center; text-decoration: none; background-color: #2b6cb0; color: white; width: 100%; box-sizing: border-box; font-size: 11px; padding: 6px; border-radius: 4px;">
+                   Support écrit disponible
+                </a>
+              </div>
+              <div *ngIf="!cours.lienSupport" style="font-size: 11px; color: #a0aec0; text-align: center; font-style: italic; margin: 4px 0;">
+                Document écrit non fourni
+              </div>
+
+              <div *ngIf="cours.lienVideo">
+                <a [href]="cours.lienVideo" target="_blank" class="btn-connecter btn-small" 
+                   style="display: inline-block; text-align: center; text-decoration: none; background-color: #dd6b20; color: white; border-color: #dd6b20; width: 100%; box-sizing: border-box; font-size: 11px; padding: 6px; border-radius: 4px;">
+                   🎬 Visionner la vidéo
+                </a>
+              </div>
+              <div *ngIf="!cours.lienVideo" style="font-size: 11px; color: #a0aec0; text-align: center; font-style: italic; margin: 4px 0;">
+                Vidéo d'explication non fournie
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+      </div>
+
+    <div *ngIf="ongletActif === 'profil'" class="profil-grid">
+      <div class="custom-table-card padding-card">
+        <h3 class="card-title">👤 Informations Académiques</h3>
+        <p><strong>INE :</strong> {{ profilEtudiant.ine }}</p>
+        <p><strong>Email :</strong> {{ profilEtudiant.email }}</p>
+        <p><strong>Promotion :</strong> {{ profilEtudiant.promo }}</p>
+      </div>
+      
+      <div class="custom-table-card padding-card">
+        <h3 class="card-title"> Paramètres de sécurité</h3>
+        <div *ngIf="messageSuccesModif" class="success-message">{{ messageSuccesModif }}</div>
+        <input type="password" placeholder="Ancien mot de passe" [(ngModel)]="ancienMotDePasse" class="input-full">
+        <input type="password" placeholder="Nouveau mot de passe" [(ngModel)]="nouveauMotDePasse" class="input-full margin-bottom-sm">
+        <button class="btn-connecter width-100" (click)="mettreAJourMotDePasse()">Mettre à jour</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div *ngIf="chargement" class="loader-container">
+  <div class="spinner"></div>
+  <p class="loader-text">Chargement sécurisé de vos données UNCHK...</p>
+</div>
+
+<footer class="main-footer">
+  <div>
+    &copy; 2026 <strong>UNCHK</strong> - Portail Numérique Universitaire. Tous droits réservés.
+  </div>
+  <div class="footer-tags">
+    <span class="version-tag">v1.0.0</span>
+    <span>Direction des Systèmes d'Information (DSI)</span>
+  </div>
+</footer>

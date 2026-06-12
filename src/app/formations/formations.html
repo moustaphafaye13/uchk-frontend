@@ -7,7 +7,7 @@
   </div>
 
   <div class="navbar-menu">
-    <a routerLink="/dashboard" class="nav-link">Étudiants</a>
+    <a routerLink="/etudiants" class="nav-link">Étudiants</a>
     <a routerLink="/budgets" class="nav-link">Budgets</a>
     <a routerLink="/formations" class="nav-link active">Formations</a>
   </div>
@@ -19,10 +19,10 @@
 
 <div class="page-container">
   
-  <div class="page-header" style="display: flex; justify-content: space-between; align-items: center;">
+  <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
     <div>
-      <h2>Catalogue des Formations & Statistiques</h2>
-      <p style="color: #718096; margin: 0;">Suivi des cursus, types de financements et indicateurs démographiques.</p>
+      <h2>Catalogue des Formations & Offres Académiques</h2>
+      <p style="color: #718096; margin: 0;">Suivi des effectifs par genre, sessions, types et financements octroyés.</p>
     </div>
     <div style="display: flex; gap: 10px;">
       <button (click)="exporterPDF()" style="background-color: #4a5568; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px;">
@@ -30,130 +30,132 @@
       </button>
       
       <button (click)="basculerFormulaire()" style="background-color: #2b6cb0; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">
-        {{ afficherFormulaire ? '✖ Fermer' : '➕ Ajouter une Formation' }}
+        ➕ Ajouter une Formation
       </button>
     </div>
   </div>
 
-  <div *ngIf="afficherFormulaire" class="custom-table-card" style="padding: 25px; margin-bottom: 25px; border-left: 4px solid #2b6cb0;">
-    <h3 style="margin-top: 0; margin-bottom: 20px; color: #1a365d;">Nouvelle Offre de Formation</h3>
-    
-    <form (submit)="validerAjoutFormation($event)">
-      <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-        <div>
-          <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Nom de la Formation</label>
-          <input type="text" name="nomFormation" [(ngModel)]="nouvelleFormation.nomFormation" required style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;" placeholder="Ex: Master Ingénierie Logicielle">
-        </div>
-        <div>
-          <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Niveau</label>
-          <select name="niveau" [(ngModel)]="nouvelleFormation.niveau" style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;">
-            <option value="Licence">Licence</option>
-            <option value="Master">Master</option>
-            <option value="Doctorat">Doctorat</option>
-            <option value="Certification">Certification</option>
-          </select>
-        </div>
-        <div>
-          <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Type</label>
-          <select name="typeFormation" [(ngModel)]="nouvelleFormation.typeFormation" style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;">
-            <option value="Initiale">Initiale</option>
-            <option value="Continue">Continue</option>
-            <option value="Certification">Certification</option>
-            <option value="Privée">Privée</option>
-          </select>
-        </div>
+  <div *ngIf="afficherFormulaire" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 2000;">
+    <div style="background-color: #ffffff; padding: 30px; border-radius: 8px; width: 90%; max-width: 800px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); max-height: 90vh; overflow-y: auto;">
+      
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px;">
+        <h3 style="margin: 0; color: #1a365d;">
+          {{ enModeModification ? '✏️ Modifier la Formation' : '➕ Nouvelle Offre de Formation' }}
+        </h3>
+        <button type="button" (click)="basculerFormulaire()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #a0aec0;">&times;</button>
       </div>
 
-      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 15px;">
-        <div>
-          <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Date de Début</label>
-          <input type="text" name="dateDebut" [(ngModel)]="nouvelleFormation.dateDebut" style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;" placeholder="JJ/MM/AAAA">
+      <form #formationForm="ngForm" (ngSubmit)="validerAjoutFormation($event)">
+        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Nom de la Formation</label>
+            <input type="text" name="nomFormation" [(ngModel)]="nouvelleFormation.nomFormation" required style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;">
+          </div>
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Niveau</label>
+            <select name="niveau" [(ngModel)]="nouvelleFormation.niveau" style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;">
+              <option value="Licence">Licence</option>
+              <option value="Master">Master</option>
+              <option value="Doctorat">Doctorat</option>
+            </select>
+          </div>
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Type</label>
+            <select name="typeFormation" [(ngModel)]="nouvelleFormation.typeFormation" style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;">
+              <option value="Initiale">Initiale</option>
+              <option value="Continue">Continue</option>
+            </select>
+          </div>
         </div>
-        <div>
-          <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Date de Fin</label>
-          <input type="text" name="dateFin" [(ngModel)]="nouvelleFormation.dateFin" style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;" placeholder="JJ/MM/AAAA">
-        </div>
-        <div>
-          <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Type Financement</label>
-          <input type="text" name="typeFinancement" [(ngModel)]="nouvelleFormation.typeFinancement" style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;" placeholder="Ex: État, Banque Mondiale">
-        </div>
-        <div>
-          <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Montant Financement</label>
-          <input type="number" name="montantFinancement" [(ngModel)]="nouvelleFormation.montantFinancement" style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;" placeholder="0">
-        </div>
-      </div>
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr 2fr; gap: 15px; align-items: flex-end;">
-        <div>
-          <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Nombre Hommes Formés</label>
-          <input type="number" name="nombreFormesHommes" [(ngModel)]="nouvelleFormation.nombreFormesHommes" style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;">
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 15px;">
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Date Début</label>
+            <input type="text" name="dateDebut" [(ngModel)]="nouvelleFormation.dateDebut" style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;" placeholder="JJ/MM/AAAA">
+          </div>
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Date Fin</label>
+            <input type="text" name="dateFin" [(ngModel)]="nouvelleFormation.dateFin" style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;" placeholder="JJ/MM/AAAA">
+          </div>
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Financement</label>
+            <input type="text" name="typeFinancement" [(ngModel)]="nouvelleFormation.typeFinancement" style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;">
+          </div>
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Montant (FCFA)</label>
+            <input type="number" name="montantFinancement" [(ngModel)]="nouvelleFormation.montantFinancement" style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;">
+          </div>
         </div>
-        <div>
-          <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Nombre Femmes Formées</label>
-          <input type="number" name="nombreFormesFemmes" [(ngModel)]="nouvelleFormation.nombreFormesFemmes" style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;">
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Nombre d'Hommes</label>
+            <input type="number" name="nombreFormesHommes" [(ngModel)]="nouvelleFormation.nombreFormesHommes" style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;">
+          </div>
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Nombre de Femmes</label>
+            <input type="number" name="nombreFormesFemmes" [(ngModel)]="nouvelleFormation.nombreFormesFemmes" style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;">
+          </div>
         </div>
-        <div>
-          <button type="submit" style="width: 100%; background-color: #48bb78; color: white; border: none; padding: 10px; border-radius: 4px; font-weight: bold; cursor: pointer;">
-            Enregistrer la Formation
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid #e2e8f0; padding-top: 15px;">
+          <button type="button" (click)="basculerFormulaire()" style="background-color: #e2e8f0; color: #4a5568; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">
+            Annuler
+          </button>
+          <button type="submit" [disabled]="!formationForm.form.valid" style="background-color: #48bb78; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold;" [style.opacity]="formationForm.form.valid ? '1' : '0.5'">
+            {{ enModeModification ? 'Sauvegarder' : 'Enregistrer la Formation' }}
           </button>
         </div>
-      </div>
-    </form>
+      </form>
+
+    </div>
   </div>
 
   <div class="custom-table-card">
     <table class="custom-table">
       <thead>
         <tr>
-          <th>Formation / Niveau</th>
-          <th>Type</th>
+          <th>Intitulé de Formation</th>
+          <th>Niveau / Type</th>
           <th>Période</th>
+          <th>Effectifs (H / F)</th>
           <th>Financement</th>
-          <th>Statistiques (H / F)</th>
-          <th>Total Formés</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
-        <ng-container *ngFor="let f of listeFormations">
-          <tr *ngIf="f.nomFormation">
-            <td>
-              <strong>{{ f.nomFormation }}</strong>
-              <div style="font-size: 0.8rem; color: #4a5568; margin-top: 2px;">🎓 {{ f.niveau }}</div>
-            </td>
-            <td>
-              <span style="background-color: #edf2f7; color: #2d3748; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 500;">
-                {{ f.typeFormation }}
-              </span>
-            </td>
-            <td style="font-size: 0.85rem;">
-              <div *ngIf="f.dateDebut || f.dateFin">
-                Du {{ f.dateDebut }}<br><span style="color: #718096;">au {{ f.dateFin }}</span>
-              </div>
-              <span *ngIf="!f.dateDebut && !f.dateFin" style="color: #a0aec0; font-style: italic;">
-                Non spécifiée
-              </span>
-            </td>
-            <td>
-              <div *ngIf="f.montantFinancement && f.montantFinancement > 0">
-                <strong>{{ f.montantFinancement | number }} FCFA</strong>
-                <div style="font-size: 0.75rem; color: #718096;">Type: {{ f.typeFinancement }}</div>
-              </div>
-              <span *ngIf="!f.montantFinancement || f.montantFinancement === 0" style="color: #a0aec0; font-size: 0.85rem; font-style: italic;">
-                Aucun (Public)
-              </span>
-            </td>
-            <td style="font-size: 0.85rem;">
-              👨 {{ f.nombreFormesHommes || 0 }} | 👩 {{ f.nombreFormesFemmes || 0 }}
-            </td>
-            <td>
-              <span style="background-color: #ebf8ff; color: #2b6cb0; padding: 4px 10px; border-radius: 12px; font-weight: bold; font-size: 0.85rem;">
-                {{ (f.nombreFormesHommes || 0) + (f.nombreFormesFemmes || 0) }}
-              </span>
-            </td>
-          </tr>
-        </ng-container>
+        <tr *ngFor="let f of listeFormations">
+          <td><strong>{{ f.nomFormation }}</strong></td>
+          <td>
+            <span style="background-color: #e2e8f0; color: #2d3748; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; margin-right: 5px;">{{ f.niveau }}</span>
+            <span style="background-color: #edf2f7; color: #4a5568; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem;">{{ f.typeFormation }}</span>
+          </td>
+          <td style="font-size: 0.9rem; color: #4a5568;">Du {{ f.dateDebut || '?' }} au {{ f.dateFin || '?' }}</td>
+          <td>👨‍🎓 {{ f.nombreFormesHommes || 0 }} | 👩‍🎓 {{ f.nombreFormesFemmes || 0 }}</td>
+          <td>
+            <span *ngIf="f.montantFinancement" style="color: #2f855a; font-weight: bold;">{{ f.montantFinancement | number }} F ({{ f.typeFinancement }})</span>
+            <span *ngIf="!f.montantFinancement" style="color: #a0aec0; font-style: italic;">Aucun</span>
+          </td>
+          <td>
+            <div style="display: flex; gap: 6px;">
+              <button (click)="ouvrirModificationFormation(f)" style="background-color: #ecc94b; color: #744210; border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer;">✏️</button>
+              <button (click)="supprimerFormation(f.id)" style="background-color: #e53e3e; color: white; border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer;">🗑️</button>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="listeFormations.length === 0">
+          <td colspan="6" style="text-align: center; color: #718096; padding: 20px;">Aucune formation disponible.</td>
+        </tr>
       </tbody>
     </table>
   </div>
-
+  <footer style="margin-top: 40px; padding: 20px 0; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; color: #718096; font-size: 0.85rem;">
+    <div>
+      &copy; 2026 <strong>UCHK</strong> - Portail Numérique Universitaire. Tous droits réservés.
+    </div>
+    <div style="display: flex; gap: 15px;">
+      <span style="background-color: #ebf8ff; color: #2b6cb0; padding: 4px 10px; border-radius: 9999px; font-weight: 600;">v1.0.0</span>
+      <span>Direction des Systèmes d'Information (DSI)</span>
+    </div>
+  </footer>
 </div>

@@ -1,19 +1,76 @@
-<div class="login-container">
-  <h2>Connexion - Portail UCHK</h2>
+<div class="login-wrapper" style="display: flex; min-height: 100vh; font-family: 'Segoe UI', Roboto, sans-serif; background-color: #f7fafc;">
   
-  <form (submit)="onLogin($event)">
-    <div class="form-group">
-      <label for="username">Nom d'utilisateur :</label>
-      <input type="text" id="username" name="username" [(ngModel)]="username" required>
+  <div class="login-sidebar" style="flex: 1; background: linear-gradient(135deg, #1a365d 0%, #2a4365 100%); display: flex; flex-direction: column; justify-content: center; padding: 60px; color: white;">
+    <div style="max-width: 440px; margin: 0 auto;">
+      <div style="background-color: rgba(255, 255, 255, 0.15); display: inline-block; padding: 8px 16px; border-radius: 6px; font-weight: 900; font-size: 1.2rem; letter-spacing: 1px; margin-bottom: 30px; border: 1px solid rgba(255, 255, 255, 0.2);">
+        UCHK
+      </div>
+      <h1 style="font-size: 2.5rem; font-weight: 800; margin: 0 0 15px 0; line-height: 1.2;">Portail Numérique Universitaire</h1>
+      <p style="color: #cbd5e0; font-size: 1.1rem; line-height: 1.6; margin: 0 0 40px 0;">
+        Accédez à la plateforme centrale de suivi des étudiants, de gestion des budgets et de pilotage des offres de formation.
+      </p>
+      <div style="border-top: 1px solid rgba(255, 255, 255, 0.2); padding-top: 20px; font-size: 0.85rem; color: #a0aec0;">
+        &copy; 2026 UCHK - Direction des Systèmes d'Information
+      </div>
     </div>
+  </div>
 
-    <div class="form-group">
-      <label for="password">Mot de passe :</label>
-      <input type="password" id="password" name="password" [(ngModel)]="password" required>
+  <div class="login-content" style="flex: 1; display: flex; justify-content: center; align-items: center; padding: 40px; background-color: #ffffff;">
+    <div style="width: 100%; max-width: 400px;">
+      
+      <div style="margin-bottom: 35px;">
+        <h2 style="color: #1a202c; font-size: 1.75rem; font-weight: 700; margin: 0 0 8px 0;">Connexion</h2>
+        <p style="color: #718096; margin: 0; font-size: 0.95rem;">Veuillez renseigner vos identifiants de sécurité.</p>
+      </div>
+
+      <form (submit)="onLogin($event)">
+        
+        <div style="margin-bottom: 20px;">
+          <label style="display: block; color: #4a5568; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; letter-spacing: 0.5px; text-transform: uppercase;">
+            Nom d'utilisateur
+          </label>
+          <div style="position: relative;">
+            <input 
+              type="text" 
+              name="username" 
+              [(ngModel)]="username" 
+              required 
+              placeholder="Ex: Abdou"
+              style="width: 100%; padding: 12px 16px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 1rem; color: #2d3748; transition: border-color 0.2s; box-sizing: border-box; outline: none; background-color: #f8fafc;"
+              onfocus="this.style.borderColor='#2b6cb0'; this.style.backgroundColor='#ffffff';" 
+              onblur="this.style.borderColor='#cbd5e0'; this.style.backgroundColor='#f8fafc';">
+          </div>
+        </div>
+
+        <div style="margin-bottom: 30px;">
+          <label style="display: block; color: #4a5568; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; letter-spacing: 0.5px; text-transform: uppercase;">
+            Mot de passe
+          </label>
+          <div style="position: relative;">
+            <input 
+              type="password" 
+              name="password" 
+              [(ngModel)]="password" 
+              required 
+              placeholder="••••••••••••"
+              style="width: 100%; padding: 12px 16px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 1rem; color: #2d3748; transition: border-color 0.2s; box-sizing: border-box; outline: none; background-color: #f8fafc;"
+              onfocus="this.style.borderColor='#2b6cb0'; this.style.backgroundColor='#ffffff';" 
+              onblur="this.style.borderColor='#cbd5e0'; this.style.backgroundColor='#f8fafc';">
+          </div>
+        </div>
+
+        <button 
+          type="submit" 
+          style="width: 100%; background-color: #2b6cb0; color: white; border: none; padding: 14px; border-radius: 6px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: background-color 0.2s; box-shadow: 0 4px 6px rgba(43, 108, 176, 0.2);"
+          onmouseover="this.style.backgroundColor='#2c5282';" 
+          onmouseout="this.style.backgroundColor='#2b6cb0';">
+          Se connecter au portail
+        </button>
+
+      </form>
+
     </div>
+  </div>
 
-    <button type="submit">Se connecter</button>
-  </form>
-
-  <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>
 </div>
+

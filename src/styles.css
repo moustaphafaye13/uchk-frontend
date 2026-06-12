@@ -142,6 +142,19 @@ button[type="submit"]:hover {
   background-color: #2b6cb0;
 }
 
+@media (max-width: 768px) {
+  .login-wrapper {
+    flex-direction: column !important;
+  }
+  .login-sidebar {
+    padding: 40px 20px !important;
+    flex: none !important;
+  }
+  .login-content {
+    padding: 40px 20px !important;
+  }
+}
+
 /* RÈGLES SPÉCIFIQUES POUR L'EXPORT PDF / IMPRESSION */
 @media print {
   /* Masquer la navbar, les boutons d'action et les formulaires sur le PDF */
@@ -170,4 +183,248 @@ button[type="submit"]:hover {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
+}
+
+/* Le conteneur de la modale (fond sombre) */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Fond noir transparent */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Passe au-dessus de tout */
+}
+
+/* La boîte blanche de la modale */
+.modal-content {
+  background-color: #ffffff;
+  padding: 30px;
+  border-radius: 8px;
+  width: 60%;
+  max-width: 800px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Navigation par Onglets --- */
+.tabs-container {
+  display: flex;
+  gap: 10px;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 2px;
+  margin-top: 20px;
+}
+
+.tab-btn {
+  padding: 12px 20px;
+  border: none;
+  background: none;
+  font-weight: 600;
+  color: #718096;
+  cursor: pointer;
+  border-radius: 8px 8px 0 0;
+  transition: all 0.3s ease;
+}
+
+.tab-btn:hover {
+  background-color: #edf2f7;
+  color: #1a365d;
+}
+
+.tab-active {
+  color: #1a365d;
+  border-bottom: 3px solid #1a365d;
+  background-color: #f7fafc;
+}
+
+.tab-content-area {
+  margin-top: 25px;
+}
+
+/* --- Layouts & Grilles --- */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 25px;
+}
+
+.profil-grid {
+  display: flex;
+  gap: 25px;
+}
+
+.courses-grid-layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 15px;
+}
+
+/* --- Utilitaires de Cartes --- */
+.padding-card {
+  padding: 25px;
+}
+
+.margin-bottom-card {
+  margin-bottom: 25px;
+}
+
+.card-title {
+  margin-top: 0;
+  color: #1a365d;
+}
+
+.card-header-blue {
+  padding: 20px;
+  background-color: #1a365d;
+  color: white;
+  font-weight: bold;
+}
+
+/* --- Éléments Internes --- */
+.subtitle {
+  color: #4a5568;
+}
+
+.edt-item {
+  padding: 12px;
+  background: #f7fafc;
+  border-left: 4px solid #2b6cb0;
+  margin-bottom: 10px;
+}
+
+.doc-item {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.doc-type {
+  color: #2b6cb0;
+  font-weight: bold;
+}
+
+.bold-text {
+  font-weight: bold;
+}
+
+.note-text {
+  color: #e53e3e;
+  font-weight: bold;
+}
+
+.course-badge-card {
+  padding: 15px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.course-code-tag {
+  font-size: 0.75rem;
+  color: white;
+  background: #1a365d;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.course-title-text {
+  margin: 10px 0;
+}
+
+.course-credits-text {
+  color: #718096;
+}
+
+.resource-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+}
+
+/* --- Formulaires & Messages --- */
+.input-full {
+  width: 90%;
+  margin-bottom: 10px;
+}
+
+.margin-bottom-sm {
+  margin-bottom: 15px;
+}
+
+.width-100 {
+  width: 100%;
+}
+
+.btn-small {
+  padding: 5px 10px;
+  font-size: 0.8rem;
+}
+
+.success-message {
+  color: green;
+  margin-bottom: 10px;
+}
+
+/* --- Loader & Animations --- */
+.loader-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  height: 300px;
+}
+
+.spinner {
+  border: 4px solid #e2e8f0;
+  border-top: 4px solid #1a365d;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+.loader-text {
+  margin-top: 15px;
+  color: #4a5568;
+  font-weight: 500;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* --- Footer --- */
+.main-footer {
+  margin-top: 40px;
+  padding: 20px 0;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #718096;
+  font-size: 0.85rem;
+}
+
+.footer-tags {
+  display: flex;
+  gap: 15px;
+}
+
+.version-tag {
+  background-color: #ebf8ff;
+  color: #2b6cb0;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-weight: 600;
 }

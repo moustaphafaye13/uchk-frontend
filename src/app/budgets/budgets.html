@@ -1,86 +1,123 @@
+<nav class="navbar">
+  <div class="navbar-brand">
+    <div style="background-color: #fff; color: #1a365d; padding: 5px 10px; border-radius: 4px; font-weight: 900; font-size: 0.9rem;">
+      UCHK
+    </div>
+    <span class="navbar-logo-text">Portail Numérique</span>
+  </div>
+
+  <div class="navbar-menu">
+    <a routerLink="/etudiants" class="nav-link">Étudiants</a>
+    <a routerLink="/budgets" class="nav-link active">Budgets</a>
+    <a routerLink="/formations" class="nav-link">Formations</a>
+  </div>
+
+  <div>
+    <button (click)="onLogout()" class="btn-logout">Déconnexion</button>
+  </div>
+</nav>
+
 <div class="page-container">
   
-  <div class="page-header" style="display: flex; justify-content: space-between; align-items: center;">
+  <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
     <div>
       <h2>Suivi Budgétaire de l'Université</h2>
-      <p style="color: #718096; margin: 0;">Historique et taux d'exécution des enveloppes de l'établissement.</p>
+      <p style="color: #718096; margin: 0;">Gestion des prévisions financières, dépenses réelles et notes d'orientation.</p>
     </div>
     <div style="display: flex; gap: 10px;">
       <button (click)="exporterPDF()" style="background-color: #4a5568; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px;">
         🖨️ Exporter en PDF
       </button>
-
+      
       <button (click)="basculerFormulaire()" style="background-color: #2b6cb0; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">
-        {{ afficherFormulaire ? '✖ Fermer' : '➕ Ajouter un Budget' }}
+        ➕ Ajouter un Budget
       </button>
     </div>
   </div>
 
-  <div *ngIf="afficherFormulaire" class="custom-table-card" style="padding: 20px; margin-bottom: 25px; border-left: 4px solid #2b6cb0;">
-    <h3 style="margin-top: 0; margin-bottom: 15px; color: #1a365d;">Nouvel Exercice Budgétaire</h3>
-    
-    <form (submit)="validerAjoutBudget($event)" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; align-items: flex-end;">
-      <div>
-        <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Année</label>
-        <input type="number" name="annee" [(ngModel)]="nouveauBudget.annee" required style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;">
+  <div *ngIf="afficherFormulaire" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 2000;">
+    <div style="background-color: #ffffff; padding: 30px; border-radius: 8px; width: 90%; max-width: 600px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);">
+      
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px;">
+        <h3 style="margin: 0; color: #1a365d;">
+          {{ enModeModification ? '✏️ Modifier le Budget' : '➕ Nouvel Exercice Budgétaire' }}
+        </h3>
+        <button type="button" (click)="basculerFormulaire()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #a0aec0;">&times;</button>
       </div>
-      <div>
-        <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Montant Projeté (FCFA)</label>
-        <input type="number" name="montantProjet" [(ngModel)]="nouveauBudget.montantProjet" required style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;">
-      </div>
-      <div>
-        <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Montant Réalisé (FCFA)</label>
-        <input type="number" name="montantRealise" [(ngModel)]="nouveauBudget.montantRealise" required style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;">
-      </div>
-      <div>
-        <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">URL Note d'Orientation</label>
-        <input type="text" name="noteOrientationUrl" [(ngModel)]="nouveauBudget.noteOrientationUrl" style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;" placeholder="https://...">
-      </div>
-      <div>
-        <button type="submit" style="width: 100%; background-color: #48bb78; color: white; border: none; padding: 9px; border-radius: 4px; font-weight: bold; cursor: pointer;">
-          Enregistrer en Base
-        </button>
-      </div>
-    </form>
+
+      <form #budgetForm="ngForm" (ngSubmit)="validerAjoutBudget($event)">
+        <div style="display: grid; grid-template-columns: 1fr; gap: 15px; margin-bottom: 15px;">
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Année Budget</label>
+            <input type="number" name="annee" [(ngModel)]="nouveauBudget.annee" required style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;">
+          </div>
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Montant Projeté (Prévisions)</label>
+            <input type="number" name="montantProjet" [(ngModel)]="nouveauBudget.montantProjet" required style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;">
+          </div>
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Montant Réalisé (Dépenses)</label>
+            <input type="number" name="montantRealise" [(ngModel)]="nouveauBudget.montantRealise" required style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;">
+          </div>
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Lien Note d'Orientation (URL PDF)</label>
+            <input type="text" name="noteOrientationUrl" [(ngModel)]="nouveauBudget.noteOrientationUrl" style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;">
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid #e2e8f0; padding-top: 15px;">
+          <button type="button" (click)="basculerFormulaire()" style="background-color: #e2e8f0; color: #4a5568; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">
+            Annuler
+          </button>
+          <button type="submit" [disabled]="!budgetForm.form.valid" style="background-color: #48bb78; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold;" [style.opacity]="budgetForm.form.valid ? '1' : '0.5'">
+            {{ enModeModification ? 'Sauvegarder' : 'Enregistrer Budget' }}
+          </button>
+        </div>
+      </form>
+
+    </div>
   </div>
 
   <div class="custom-table-card">
     <table class="custom-table">
       <thead>
         <tr>
-          <th>Année Budgétaire</th>
-          <th>Montant Projeté (Prévisions)</th>
-          <th>Montant Réalisé (Dépenses)</th>
-          <th>Taux d'Exécution</th>
+          <th>Année</th>
+          <th>Montant Projeté</th>
+          <th>Montant Réalisé</th>
           <th>Note d'Orientation</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
-        <ng-container *ngFor="let b of listeBudgets">
-          <tr *ngIf="b.annee">
-            <td><strong>Exercice {{ b.annee }}</strong></td>
-            <td>{{ b.montantProjet | number }} FCFA</td>
-            <td>{{ b.montantRealise | number }} FCFA</td>
-            <td>
-              <span [style.background-color]="(b.montantRealise / b.montantProjet) >= 0.75 ? '#f0fff4' : '#fff5f5'"
-                    [style.color]="(b.montantRealise / b.montantProjet) >= 0.75 ? '#38a169' : '#e53e3e'"
-                    style="padding: 4px 8px; border-radius: 12px; font-size: 0.85rem; font-weight: bold;">
-                {{ (b.montantRealise / b.montantProjet) * 100 | number:'1.0-2' }} %
-              </span>
-            </td>
-            <td>
-              <a *ngIf="b.noteOrientationUrl" [href]="b.noteOrientationUrl" target="_blank" 
-                 style="display: inline-block; background-color: #ebf8ff; color: #2b6cb0; text-decoration: none; padding: 6px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: 500;">
-                📄 Ouvrir le PDF
-              </a>
-              <span *ngIf="!b.noteOrientationUrl" style="color: #a0aec0; font-size: 0.85rem; font-style: italic;">
-                Aucun document lié
-              </span>
-            </td>
-          </tr>
-        </ng-container>
+        <tr *ngFor="let b of listeBudgets">
+          <td><strong>{{ b.annee }}</strong></td>
+          <td style="color: #2b6cb0; font-weight: 600;">{{ b.montantProjet | number:'1.0-2' }} FCFA</td>
+          <td style="color: #e53e3e; font-weight: 600;">{{ b.montantRealise | number:'1.0-2' }} FCFA</td>
+          <td>
+            <a *ngIf="b.noteOrientationUrl" [href]="b.noteOrientationUrl" target="_blank" style="color: #3182ce; text-decoration: underline;">Voir le PDF 📄</a>
+            <span *ngIf="!b.noteOrientationUrl" style="color: #a0aec0; font-style: italic;">Aucun lien</span>
+          </td>
+          <td>
+            <div style="display: flex; gap: 6px;">
+              <button (click)="ouvrirModificationBudget(b)" style="background-color: #ecc94b; color: #744210; border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer;">✏️</button>
+              <button (click)="supprimerBudget(b.id)" style="background-color: #e53e3e; color: white; border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer;">🗑️</button>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="listeBudgets.length === 0">
+          <td colspan="5" style="text-align: center; color: #718096; padding: 20px;">Aucun budget enregistré.</td>
+        </tr>
       </tbody>
     </table>
   </div>
-
+  <footer style="margin-top: 40px; padding: 20px 0; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; color: #718096; font-size: 0.85rem;">
+    <div>
+      &copy; 2026 <strong>UCHK</strong> - Portail Numérique Universitaire. Tous droits réservés.
+    </div>
+    <div style="display: flex; gap: 15px;">
+      <span style="background-color: #ebf8ff; color: #2b6cb0; padding: 4px 10px; border-radius: 9999px; font-weight: 600;">v1.0.0</span>
+      <span>Direction des Systèmes d'Information (DSI)</span>
+    </div>
+  </footer>
 </div>
