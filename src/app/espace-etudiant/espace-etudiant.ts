@@ -16,8 +16,8 @@ export class EspaceEtudiantComponent implements OnInit {
 
   profilEtudiant: any = null;
   listeNotes: any[] = []; 
-  listeCoursBdd: any[] = []; // Contient dynamiquement les attributs lienSupport et lienVideo
-  emploisDuTemps: any[] = []; // 🌟 Initialisé à vide pour accueillir les données réelles du serveur
+  listeCoursBdd: any[] = []; // Contient dynamiquement les cours du programme de l'étudiant
+  emploisDuTemps: any[] = []; 
   chargement: boolean = true;
   messageErreur: string = '';
 
@@ -28,7 +28,7 @@ export class EspaceEtudiantComponent implements OnInit {
   messageSuccesModif: string = '';
   messageErreurModif: string = '';
 
-  // 📁 Données d'accès aux ressources et documents administratives (statiques)
+  // 📁 Données d'accès aux ressources et documents administratifs (statiques)
   ressources: any[] = [
     { titre: 'Support de cours - Architecture Logicielle.pdf', type: 'PDF', taille: '3.5 Mo' },
     { titre: 'TP 1 - Configuration Environnement Angular.zip', type: 'Archive', taille: '1.8 Mo' },
@@ -43,8 +43,6 @@ export class EspaceEtudiantComponent implements OnInit {
 
   ngOnInit() {
     this.chargerProfilEtudiant();
-    this.chargerTousLesCours(); 
-    this.chargerEmploiDuTemps(); // 🌟 Lancement automatique de la récupération de l'emploi du temps
   }
 
   // 🌟 Gère le changement d'onglet à l'écran
@@ -78,8 +76,10 @@ export class EspaceEtudiantComponent implements OnInit {
         this.profilEtudiant = data;
         this.nouvelEmail = data.email; 
         
-        // 2. Une fois le profil chargé, on récupère dynamiquement ses notes
+        // 2. Chargement des données dépendantes du profil de l'étudiant
         this.chargerNotesEtudiant(usernameConnecte, headers);
+        this.chargerTousLesCours(usernameConnecte, headers); 
+        this.chargerEmploiDuTemps(headers); 
       },
       error: (err) => {
         console.error("Erreur lors du chargement du profil :", err);
@@ -93,7 +93,6 @@ export class EspaceEtudiantComponent implements OnInit {
   chargerNotesEtudiant(email: string, headers: HttpHeaders) {
     this.http.get<any[]>(`http://localhost:8080/notes/mes-notes/${email}`, { headers }).subscribe({
       next: (notes) => {
-        console.log("Notes récupérées :", notes);
         this.listeNotes = notes; 
         this.chargement = false;
         this.cdr.detectChanges(); 
@@ -106,39 +105,23 @@ export class EspaceEtudiantComponent implements OnInit {
     });
   }
 
-  // 🌟 Récupération des cours ajoutés par le professeur avec les nouveaux liens supports et vidéos
-  chargerTousLesCours() {
-    const token = localStorage.getItem('token');
-    if (!token) return;
-
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token}`
-    });
-
-    this.http.get<any[]>('http://localhost:8080/cours', { headers }).subscribe({
+  // 🌟 Récupération des cours filtrés par la formation de l'étudiant
+  chargerTousLesCours(email: string, headers: HttpHeaders) {
+    this.http.get<any[]>(`http://localhost:8080/cours/mon-programme/${email}`, { headers }).subscribe({
       next: (data) => {
-        console.log("Cours récupérés pour l'étudiant depuis la BDD :", data);
         this.listeCoursBdd = data; 
         this.cdr.detectChanges(); 
       },
       error: (err) => {
-        console.error("Erreur lors de la récupération des cours pour l'étudiant :", err);
+        console.error("Erreur lors de la récupération des cours filtrés :", err);
       }
     });
   }
 
-  // 🌟 Nouvelle méthode pour récupérer l'emploi du temps dynamique depuis la base de données
-  chargerEmploiDuTemps() {
-    const token = localStorage.getItem('token');
-    if (!token) return;
-
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token}`
-    });
-
+  // 🌟 Récupération de l'emploi du temps dynamique
+  chargerEmploiDuTemps(headers: HttpHeaders) {
     this.http.get<any[]>('http://localhost:8080/api/emploi-du-temps', { headers }).subscribe({
       next: (data) => {
-        console.log("Emploi du temps réel chargé :", data);
         this.emploisDuTemps = data;
         this.cdr.detectChanges();
       },
@@ -148,12 +131,15 @@ export class EspaceEtudiantComponent implements OnInit {
     });
   }
 
-  // 📝 Méthode pour le module de modification de l'adresse email
+  // 📝 Modification de l'adresse email
   mettreAJourEmail() {
     this.messageSuccesModif = '';
     this.messageErreurModif = '';
     const token = localStorage.getItem('token');
-    const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
+    const headers = new HttpHeaders({ 
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    });
     
     this.http.put(`http://localhost:8080/etudiants/${this.profilEtudiant.id}/modifier-email`, { email: this.nouvelEmail }, { headers }).subscribe({
       next: () => {
@@ -168,12 +154,15 @@ export class EspaceEtudiantComponent implements OnInit {
     });
   }
 
-  // 🔒 Méthode pour le module de modification du mot de passe
+  // 🔒 Modification du mot de passe
   mettreAJourMotDePasse() {
     this.messageSuccesModif = '';
     this.messageErreurModif = '';
     const token = localStorage.getItem('token');
-    const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
+    const headers = new HttpHeaders({ 
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    });
 
     const body = { 
       ancienPassword: this.ancienMotDePasse, 
@@ -196,6 +185,8 @@ export class EspaceEtudiantComponent implements OnInit {
 
   deconnecter() {
     localStorage.removeItem('token');
+    localStorage.removeItem('username');
+    localStorage.removeItem('role');
     this.router.navigate(['/']);
   }
 }

@@ -15,9 +15,9 @@ export class ProfesseurComponent implements OnInit {
 
   listeEtudiants: any[] = []; 
   listeCours: any[] = []; 
-  listeEDT: any[] = []; // 🌟 Contient dynamiquement l'emploi du temps réel du backend
+  listeEDT: any[] = []; // Contient dynamiquement l'emploi du temps réel du backend
   
-  // 🌟 Modèle d'objet Cours mis à jour avec la séparation Document et Vidéo
+  // Modèle d'objet Cours mis à jour avec la séparation Document et Vidéo
   nouveauCours: any = { 
     intitule: '', 
     code: '', 
@@ -30,7 +30,7 @@ export class ProfesseurComponent implements OnInit {
   };
   coursEnEdition: any = null;
 
-  // 🌟 Modèle réadapté pour correspondre à l'entité EmploiDuTemps de ton backend
+  // Modèle réadapté pour correspondre à l'entité EmploiDuTemps du backend
   nouvelEDT: any = {
     jour: 'Lundi',
     heureDebut: '',
@@ -58,7 +58,7 @@ export class ProfesseurComponent implements OnInit {
 
   ngOnInit() {
     this.initialiserDonnees();
-    this.chargerEmploiDuTemps(); // 🌟 Chargement automatique du planning au démarrage
+    this.chargerEmploiDuTemps(); // 📅 Chargement automatique du planning au démarrage
   }
 
   changerOnglet(onglet: string) {
@@ -69,6 +69,8 @@ export class ProfesseurComponent implements OnInit {
 
   initialiserDonnees() {
     const token = localStorage.getItem('token');
+    const emailProf = localStorage.getItem('username'); // Récupération du username du prof connecté
+    
     if (!token) {
       this.router.navigate(['/']);
       return;
@@ -84,39 +86,49 @@ export class ProfesseurComponent implements OnInit {
       error: (err) => console.error("Erreur chargement étudiants", err)
     });
 
-    this.http.get<any[]>('http://localhost:8080/cours', { headers }).subscribe({
-      next: (data) => { 
-        this.listeCours = data; 
-        this.cdr.detectChanges(); 
-      },
-      error: (err) => console.error("Erreur chargement cours", err)
-    });
+    // On charge uniquement les cours du professeur connecté
+    if (emailProf) {
+      this.http.get<any[]>(`http://localhost:8080/cours/mes-cours/${emailProf}`, { headers }).subscribe({
+        next: (data) => { 
+          this.listeCours = data; 
+          this.cdr.detectChanges(); 
+        },
+        error: (err) => {
+          console.error("Erreur chargement des cours filtrés", err);
+          this.listeCours = [];
+        }
+      });
+    }
   }
 
-  // 🌟 Récupération globale de l'emploi du temps depuis l'API Spring Boot
+  // 📅 Récupération exclusive de l'emploi du temps du prof connecté
   chargerEmploiDuTemps() {
     const token = localStorage.getItem('token');
+    const emailProf = localStorage.getItem('username'); // 👈 Récupération du prof connecté
+    
     if (!token) return;
 
     const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
 
-    this.http.get<any[]>('http://localhost:8080/api/emploi-du-temps', { headers }).subscribe({
-      next: (data) => {
-        this.listeEDT = data;
-        this.cdr.detectChanges();
-      },
-      error: (err) => console.error("Erreur lors de la récupération de l'EDT", err)
-    });
+    if (emailProf) {
+      this.http.get<any[]>(`http://localhost:8080/api/emploi-du-temps/mon-planning/${emailProf}`, { headers }).subscribe({
+        next: (data) => {
+          this.listeEDT = data;
+          this.cdr.detectChanges();
+        },
+        error: (err) => console.error("Erreur lors de la récupération de l'EDT filtré", err)
+      });
+    }
   }
 
-  // 🌟 Intercepte le document de cours écrit (PDF, Word...)
+  // Intercepte le document de cours écrit (PDF, Word...)
   onDocumentChange(event: any) {
     if (event.target.files && event.target.files.length > 0) {
       this.nouveauCours.documentSelectionne = event.target.files[0];
     }
   }
 
-  // 🎥 Intercepte la vidéo explicative physique (.mp4)
+  // Intercepte la vidéo explicative physique (.mp4)
   onVideoPhysiqueChange(event: any) {
     if (event.target.files && event.target.files.length > 0) {
       this.nouveauCours.videoSelectionnee = event.target.files[0];
@@ -129,9 +141,10 @@ export class ProfesseurComponent implements OnInit {
     this.messageErreur = '';
     
     const token = localStorage.getItem('token');
+    const emailProf = localStorage.getItem('username') || ''; 
     
     if (this.coursEnEdition && this.coursEnEdition.id) {
-      // ✏️ MODE MODIFICATION (PUT) - Envoi JSON
+      // ✏️ MODE MODIFICATION (PUT) -> Reste en JSON comme ton Java attend sur son @PutMapping
       const headersJson = new HttpHeaders({ 
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
@@ -144,7 +157,7 @@ export class ProfesseurComponent implements OnInit {
         formation: String(this.nouveauCours.formation || '').trim(),
         credits: Number(this.nouveauCours.credits) || 6,
         lienSupport: this.nouveauCours.lienSupport,
-        lienVideo: this.nouveauCours.lienVideo
+        lienVideo: this.nouveauCours.lienVideo ? String(this.nouveauCours.lienVideo).trim() : ''
       };
       
       const idCours = this.coursEnEdition.id;
@@ -162,7 +175,7 @@ export class ProfesseurComponent implements OnInit {
         }
       });
     } else {
-      // ➕ MODE CRÉATION (POST) - Envoi Multipart FormData
+      // ➕ MODE CRÉATION (POST) -> Reconstruit en FormData (Multipart) pour correspondre au @PostMapping de Java
       const headersMultipart = new HttpHeaders({ 
         'Authorization': `Bearer ${token}`
       });
@@ -173,28 +186,32 @@ export class ProfesseurComponent implements OnInit {
       formDataPayload.append('description', String(this.nouveauCours.description || '').trim());
       formDataPayload.append('formation', String(this.nouveauCours.formation || '').trim());
       formDataPayload.append('credits', String(this.nouveauCours.credits || 6));
+      formDataPayload.append('emailProf', emailProf); 
       
+      // Gestion obligatoire des objets fichiers pour ne pas manquer de @RequestParam côté Java
       if (this.nouveauCours.documentSelectionne) {
         formDataPayload.append('fichierDocument', this.nouveauCours.documentSelectionne);
+      } else {
+        formDataPayload.append('fichierDocument', new Blob(), ''); 
       }
       
-      if (this.nouveauCours.lienVideo) {
-        formDataPayload.append('lienVideo', this.nouveauCours.lienVideo);
-      }
+      formDataPayload.append('lienVideo', String(this.nouveauCours.lienVideo || '').trim());
       
       if (this.nouveauCours.videoSelectionnee) {
         formDataPayload.append('fichierVideo', this.nouveauCours.videoSelectionnee);
+      } else {
+        formDataPayload.append('fichierVideo', new Blob(), ''); 
       }
 
       this.http.post('http://localhost:8080/cours', formDataPayload, { headers: headersMultipart }).subscribe({
-        next: () => {
-          this.messageSucces = "Nouvelle matière créée avec succès avec son document écrit ET sa vidéo explicative !";
+        next: (res: any) => {
+          this.messageSucces = `La matière "${this.nouveauCours.intitule}" a été créée avec succès !`;
           this.reinitialiserFormulaireCours();
           this.initialiserDonnees();
         },
         error: (err) => {
           console.error("Détails erreur création:", err);
-          this.messageErreur = "Impossible de créer le cours. Vérifie la console du serveur.";
+          this.messageErreur = "Impossible de créer le cours. Vérifie que les données du formulaire sont valides.";
           this.cdr.detectChanges();
         }
       });
@@ -274,13 +291,11 @@ export class ProfesseurComponent implements OnInit {
       'Content-Type': 'application/json'
     });
 
-    // Envoi de la planification au contrôleur Spring Boot
     this.http.post('http://localhost:8080/api/emploi-du-temps/planifier', this.nouvelEDT, { headers }).subscribe({
       next: (data: any) => {
         this.messageSucces = `Le cours de "${this.nouvelEDT.cours.intitule}" a été planifié pour le ${this.nouvelEDT.jour} !`;
-        // Réinitialisation du formulaire en conservant une structure saine
         this.nouvelEDT = { jour: 'Lundi', heureDebut: '', heureFin: '', salle: '', cours: null };
-        this.chargerEmploiDuTemps(); // Rechargement de la liste de droite
+        this.chargerEmploiDuTemps(); // Rechargement immédiat du planning privé
       },
       error: (err) => {
         console.error("Erreur planification EDT:", err);
@@ -299,7 +314,8 @@ export class ProfesseurComponent implements OnInit {
 
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders({ 
-      'Authorization': `Bearer ${token}` 
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json' // ✨ Précision du type JSON
     });
 
     const etudiantIdBrut = this.noteSaisie.etudiant && typeof this.noteSaisie.etudiant === 'object' 
@@ -315,22 +331,24 @@ export class ProfesseurComponent implements OnInit {
       return;
     }
 
-    const formData = new FormData();
-    formData.append('valeur', String(this.noteSaisie.valeur));
-    formData.append('semestre', this.noteSaisie.semestre);
-    formData.append('appreciation', this.noteSaisie.appreciation);
-    formData.append('etudiantId', String(etudiantIdBrut)); 
-    formData.append('coursId', String(coursIdBrut));        
+    // ✨ ALIGNEMENT BACKEND : Remplacement du FormData par un objet JSON propre conforme au NoteRequest DTO
+    const notePayload = {
+      valeur: String(this.noteSaisie.valeur),
+      semestre: this.noteSaisie.semestre,
+      appreciation: this.noteSaisie.appreciation,
+      etudiantId: String(etudiantIdBrut),
+      coursId: String(coursIdBrut)
+    };
 
-    this.http.post('http://localhost:8080/notes/saisir', formData, { headers }).subscribe({
+    this.http.post('http://localhost:8080/notes/saisir', notePayload, { headers }).subscribe({
       next: () => {
-        this.messageSucces = "La note a été publiée avec succès !";
+        this.messageSucces = "🎉 La note a été publiée avec succès !";
         this.noteSaisie = { etudiant: undefined, cours: undefined, valeur: null, semestre: 'Semestre 1', appreciation: '' };
         this.cdr.detectChanges();
       },
       error: (err) => {
         console.error("Détails erreur note:", err);
-        this.messageErreur = "Erreur lors de la publication de la note. Vérifiez les champs ou la console serveur.";
+        this.messageErreur = err.error?.message || "Erreur lors de la publication de la note (Vérifiez les doublons).";
         this.cdr.detectChanges();
       }
     });
@@ -338,6 +356,8 @@ export class ProfesseurComponent implements OnInit {
 
   deconnecter() {
     localStorage.removeItem('token');
+    localStorage.removeItem('username'); 
+    localStorage.removeItem('role');
     this.router.navigate(['/']);
   }
 }

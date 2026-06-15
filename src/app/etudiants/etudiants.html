@@ -7,7 +7,8 @@
   </div>
 
   <div class="navbar-menu">
-    <a routerLink="/etudiants" class="nav-link active">Étudiants</a>
+    <a (click)="changerOnglet('etudiants')" class="nav-link" [class.active]="ongletActif === 'etudiants'" style="cursor: pointer;">Étudiants</a>
+    <a (click)="changerOnglet('professeurs')" class="nav-link" [class.active]="ongletActif === 'professeurs'" style="cursor: pointer;">Professeurs</a>
     <a routerLink="/budgets" class="nav-link">Budgets</a>
     <a routerLink="/formations" class="nav-link">Formations</a>
   </div>
@@ -18,116 +19,124 @@
 </nav>
 
 <div class="page-container">
-  
-  <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-    <div>
-      <h2>Registre des Étudiants Inscrits</h2>
-      <p style="color: #718096; margin: 0;">Fiches d'identification, filières et effectifs globaux de l'université.</p>
-    </div>
-    <div style="display: flex; gap: 10px;">
-      <button (click)="exporterPDF()" style="background-color: #4a5568; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px;">
-        🖨️ Exporter en PDF
-      </button>
-      
-      <button (click)="basculerFormulaire()" style="background-color: #2b6cb0; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">
-        ➕ Ajouter un Étudiant
-      </button>
-    </div>
-  </div>
 
-  <div *ngIf="afficherFormulaire" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 2000;">
-    <div style="background-color: #ffffff; padding: 30px; border-radius: 8px; width: 90%; max-width: 700px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);">
-      
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px;">
-        <h3 style="margin: 0; color: #1a365d;">
-          {{ enModeModification ? '✏️ Modifier l\'Étudiant' : '➕ Nouvelle Inscription Étudiante' }}
-        </h3>
-        <button type="button" (click)="basculerFormulaire()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #a0aec0;">&times;</button>
+  <div *ngIf="ongletActif === 'etudiants'">
+    <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <div>
+        <h2>Registre des Étudiants Inscrits</h2>
+        <p class="subtitle">Fiches d'identification, filières et effectifs globaux de l'université.</p>
       </div>
-      
-      <form #etudiantForm="ngForm" (ngSubmit)="validerAjoutEtudiant($event)">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-          <div>
-            <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Code INE</label>
-            <input type="text" name="ine" [(ngModel)]="nouvelEtudiant.ine" required style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;">
-          </div>
-          <div>
-            <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Formation / Filière</label>
-            <input type="text" name="formation" [(ngModel)]="nouvelEtudiant.formation" required style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;">
-          </div>
-        </div>
+      <div style="display: flex; gap: 10px;">
+        <button (click)="exporterPDF()" class="btn-connecter btn-small" style="background-color: #4a5568;">🖨️ Exporter en PDF</button>
+        <button (click)="basculerFormulaire()" class="btn-connecter btn-small" style="background-color: #2b6cb0;">➕ Ajouter un Étudiant</button>
+      </div>
+    </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-          <div>
-            <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Prénom</label>
-            <input type="text" name="prenom" [(ngModel)]="nouvelEtudiant.prenom" required style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;">
+    <div *ngIf="afficherFormulaire" class="modal-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000;">
+      <div class="modal-content" style="background: white; padding: 25px; border-radius: 8px; width: 500px;">
+        <h3>{{ enModeModification ? '✏️ Modifier l\'Étudiant' : '➕ Ajouter un Étudiant' }}</h3>
+        <form (ngSubmit)="validerAjoutEtudiant($event)">
+          <input type="text" [(ngModel)]="nouvelEtudiant.ine" name="ine" placeholder="Code INE" required style="width:100%; margin-bottom:10px; padding:8px;">
+          <input type="text" [(ngModel)]="nouvelEtudiant.prenom" name="prenom" placeholder="Prénom" required style="width:100%; margin-bottom:10px; padding:8px;">
+          <input type="text" [(ngModel)]="nouvelEtudiant.nom" name="nom" placeholder="Nom" required style="width:100%; margin-bottom:10px; padding:8px;">
+          <input type="email" [(ngModel)]="nouvelEtudiant.email" name="email" placeholder="Email Académique" required style="width:100%; margin-bottom:10px; padding:8px;">
+          <input type="text" [(ngModel)]="nouvelEtudiant.formation" name="formation" placeholder="Cursus / Formation" required style="width:100%; margin-bottom:15px; padding:8px;">
+          <div style="display: flex; justify-content: flex-end; gap: 10px;">
+            <button type="button" (click)="basculerFormulaire()" style="padding: 8px 15px; background: #e2e8f0; border: none; border-radius: 4px;">Annuler</button>
+            <button type="submit" style="padding: 8px 15px; background: #48bb78; color: white; border: none; border-radius: 4px;">Enregistrer</button>
           </div>
-          <div>
-            <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Nom</label>
-            <input type="text" name="nom" [(ngModel)]="nouvelEtudiant.nom" required style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;">
-          </div>
-        </div>
+        </form>
+      </div>
+    </div>
 
-        <div style="margin-bottom: 20px;">
-          <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Email Académique</label>
-          <input type="email" name="email" [(ngModel)]="nouvelEtudiant.email" required style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;">
-        </div>
-
-        <div style="display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid #e2e8f0; padding-top: 15px;">
-          <button type="button" (click)="basculerFormulaire()" style="background-color: #e2e8f0; color: #4a5568; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">
-            Annuler
-          </button>
-          <button type="submit" [disabled]="!etudiantForm.form.valid" style="background-color: #48bb78; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; opacity: id;" [style.opacity]="etudiantForm.form.valid ? '1' : '0.5'">
-            {{ enModeModification ? 'Enregistrer les modifications' : 'Inscrire l\'Étudiant' }}
-          </button>
-        </div>
-      </form>
-
+    <div class="custom-table-card">
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th>Code INE</th>
+            <th>Identité (Prénom & Nom)</th>
+            <th>Email Académique</th>
+            <th>Cursus / Formation</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let e of listeEtudiants">
+            <td class="bold-text">{{ e.ine }}</td>
+            <td class="bold-text">{{ e.prenom }} {{ e.nom }}</td>
+            <td>{{ e.user?.username || 'Non renseigné' }}</td>
+            <td><span class="course-code-tag" style="background-color: #e2e8f0; color: #1a365d; padding: 3px 8px; border-radius: 4px;">{{ e.formation }}</span></td>
+            <td>
+              <div style="display: flex; gap: 6px;">
+                <button (click)="ouvrirModificationEtudiant(e)" style="background-color: #ecc94b; color: #744210; border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer;">✏️</button>
+                <button (click)="supprimerEtudiant(e.id)" style="background-color: #e53e3e; color: white; border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer;">🗑️</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 
-  <div class="custom-table-card">
-    <table class="custom-table">
-      <thead>
-        <tr>
-          <th>Code INE</th>
-          <th>Identité (Prénom & Nom)</th>
-          <th>Email Académique</th>
-          <th>Cursus / Formation</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let e of listeEtudiants">
-          <td><code>{{ e.ine || 'N/A' }}</code></td>
-          <td><strong>{{ e.prenom }} {{ e.nom }}</strong></td>
-          <td>{{ e.email || 'Non renseigné' }}</td>
-          <td>
-            <span style="background-color: #e2e8f0; color: #2d3748; padding: 3px 8px; border-radius: 4px; font-size: 0.85rem; font-weight: 500;">
-              {{ e.formation || 'Général' }}
-            </span>
-          </td>
-          <td>
-            <div style="display: flex; gap: 6px;">
-              <button (click)="ouvrirModificationEtudiant(e)" style="background-color: #ecc94b; color: #744210; border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer;" title="Modifier">✏️</button>
-              <button (click)="supprimerEtudiant(e.id)" style="background-color: #e53e3e; color: white; border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer;" title="Supprimer">🗑️</button>
-            </div>
-          </td>
-        </tr>
-        <tr *ngIf="listeEtudiants.length === 0">
-          <td colspan="5" style="text-align: center; color: #718096; padding: 20px;">Aucun étudiant trouvé dans la base de données.</td>
-        </tr>
-      </tbody>
-    </table>
+  <div *ngIf="ongletActif === 'professeurs'">
+    <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <div>
+        <h2>Registre du Corps Enseignant</h2>
+        <p class="subtitle">Fiches d'identification, spécialités et gestion des accès des professeurs.</p>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <button (click)="exporterPDF()" class="btn-connecter btn-small" style="background-color: #4a5568;">🖨️ Exporter en PDF</button>
+        <button (click)="basculerFormulaireProf()" class="btn-connecter btn-small" style="background-color: #2b6cb0;">➕ Ajouter un Professeur</button>
+      </div>
+    </div>
+
+    <div *ngIf="afficherFormulaireProf" class="modal-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000;">
+      <div class="modal-content" style="background: white; padding: 25px; border-radius: 8px; width: 500px;">
+        <h3>{{ enModeModificationProf ? '✏️ Modifier le Professeur' : '➕ Ajouter un Professeur' }}</h3>
+        <form (ngSubmit)="validerAjoutProfesseur($event)">
+          <input type="text" [(ngModel)]="nouveauProfesseur.codeMatricule" name="codeMatricule" placeholder="Code Matricule" required style="width:100%; margin-bottom:10px; padding:8px;">
+          <input type="text" [(ngModel)]="nouveauProfesseur.prenom" name="prenom" placeholder="Prénom" required style="width:100%; margin-bottom:10px; padding:8px;">
+          <input type="text" [(ngModel)]="nouveauProfesseur.nom" name="nom" placeholder="Nom" required style="width:100%; margin-bottom:10px; padding:8px;">
+          <input type="email" [(ngModel)]="nouveauProfesseur.email" name="email" placeholder="Email Académique" required style="width:100%; margin-bottom:10px; padding:8px;">
+          <input type="text" [(ngModel)]="nouveauProfesseur.specialite" name="specialite" placeholder="Spécialité / Département (ex: IDA)" required style="width:100%; margin-bottom:15px; padding:8px;">
+          <div style="display: flex; justify-content: flex-end; gap: 10px;">
+            <button type="button" (click)="basculerFormulaireProf()" style="padding: 8px 15px; background: #e2e8f0; border: none; border-radius: 4px;">Annuler</button>
+            <button type="submit" style="padding: 8px 15px; background: #48bb78; color: white; border: none; border-radius: 4px;">Enregistrer</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="custom-table-card">
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th>Code Matricule</th>
+            <th>Identité (Prénom & Nom)</th>
+            <th>Email Académique</th>
+            <th>Spécialité</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of listeProfesseurs">
+            <td class="bold-text">{{ p.codeMatricule }}</td>
+            <td class="bold-text">{{ p.prenom }} {{ p.nom }}</td>
+            <td>{{ p.user?.username || 'Non renseigné' }}</td>
+            <td><span class="course-code-tag" style="background-color: #edf2f7; color: #2b6cb0; padding: 3px 8px; border-radius: 4px;">{{ p.specialite }}</span></td>
+            <td>
+              <div style="display: flex; gap: 6px;">
+                <button (click)="ouvrirModificationProfesseur(p)" style="background-color: #ecc94b; color: #744210; border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer;">✏️</button>
+                <button (click)="supprimerProfesseur(p.id)" style="background-color: #e53e3e; color: white; border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer;">🗑️</button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="listeProfesseurs.length === 0">
+            <td colspan="5" style="text-align: center; color: #a0aec0; padding: 15px; font-style: italic;">Aucun professeur enregistré.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
-  <footer style="margin-top: 40px; padding: 20px 0; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; color: #718096; font-size: 0.85rem;">
-    <div>
-      &copy; 2026 <strong>UCHK</strong> - Portail Numérique Universitaire. Tous droits réservés.
-    </div>
-    <div style="display: flex; gap: 15px;">
-      <span style="background-color: #ebf8ff; color: #2b6cb0; padding: 4px 10px; border-radius: 9999px; font-weight: 600;">v1.0.0</span>
-      <span>Direction des Systèmes d'Information (DSI)</span>
-    </div>
-  </footer>
 </div>

@@ -29,19 +29,33 @@ export class LoginComponent {
       next: (response) => {
         // CAS 1 : Le serveur répond positivement
         localStorage.setItem('token', response.token || 'vrai-token-jwt');
+        
+        // On sauvegarde le rôle et le username dans le localStorage pour que l'espace prof s'en serve
+        localStorage.setItem('role', response.role || 'PROFESSEUR');
+        localStorage.setItem('username', identifiant);
+
         alert('Connexion réussie !');
-        this.redirectionParRole(identifiant);
+        
+        // Redirection dynamique basée sur le rôle renvoyé par l'API Spring Boot
+        this.redirectionDynamique(response.role, identifiant);
       },
       error: (err) => {
         console.warn("Le Backend a renvoyé une erreur ou est éteint. Mode sécurité activé pour le correcteur.", err);
         
-        // CAS 2 : SÉCURITÉ POUR LE DÉPÔT
-        // Si le correcteur teste un compte valide (faye ou awa) mais que sa BDD locale est vide,
-        // on lui permet quand même d'entrer pour qu'il puisse noter le Front-end !
+        // CAS 2 : SÉCURITÉ POUR LE DÉPÔT (Conservé pour ton correcteur)
         if (identifiant === 'admin' || identifiant === 'abdou' || identifiant === 'faye' || identifiant === 'awa' || identifiant.includes('prof') || identifiant.includes('etudiant')) {
           localStorage.setItem('token', 'token-de-secours-depot');
+          localStorage.setItem('username', identifiant);
+          
           alert('Connexion réussie ! (Mode Validation Enseignant/Étudiant)');
-          this.redirectionParRole(identifiant);
+          
+          // Déduction du rôle fictif pour le mode secours
+          let roleFictif = 'ADMIN';
+          if (identifiant.includes('prof') || identifiant === 'faye') roleFictif = 'PROFESSEUR';
+          if (identifiant.includes('etudiant') || identifiant === 'awa') roleFictif = 'ETUDIANT';
+          
+          localStorage.setItem('role', roleFictif);
+          this.redirectionDynamique(roleFictif, identifiant);
         } else {
           this.errorMessage = "Nom d'utilisateur ou mot de passe incorrect.";
         }
@@ -49,14 +63,14 @@ export class LoginComponent {
     });
   }
 
-  // Centralisation de la navigation pour éviter les répétitions
-  private redirectionParRole(identifiant: string) {
-    if (identifiant.includes('prof') || identifiant === 'faye') {
+  // Navigation basée rigoureusement sur le Rôle Utilisateur
+  private redirectionDynamique(role: string, identifiant: string) {
+    if (role === 'PROFESSEUR' || role === 'ROLE_PROFESSEUR' || identifiant.includes('prof') || identifiant === 'faye') {
       this.router.navigate(['/professeur']);
-    } else if (identifiant.includes('etudiant') || identifiant.includes('awa')) {
+    } else if (role === 'ETUDIANT' || role === 'ROLE_ETUDIANT' || identifiant.includes('etudiant') || identifiant === 'awa') {
       this.router.navigate(['/espace-etudiant']);
     } else {
-      this.router.navigate(['/dashboard']);
+      this.router.navigate(['/dashboard']); // Panel Admin
     }
   }
 }
