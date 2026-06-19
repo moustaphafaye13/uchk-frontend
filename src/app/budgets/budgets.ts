@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-budgets',
@@ -25,7 +26,7 @@ export class BudgetsComponent implements OnInit {
   // URL synchronisée avec ton @RequestMapping("/api/budgets")
   private baseUrl = 'http://localhost:8080/api/budgets';
 
-  constructor(private http: HttpClient, private router: Router, private cdr: ChangeDetectorRef) {}
+  constructor(private http: HttpClient, private router: Router, private cdr: ChangeDetectorRef, private toastr: ToastrService) {}
 
   ngOnInit() {
     this.chargerBudgets();
@@ -73,22 +74,32 @@ export class BudgetsComponent implements OnInit {
       // Appelle ta méthode @PutMapping("/{id}")
       this.http.put(`${this.baseUrl}/${this.nouveauBudget.id}`, this.nouveauBudget, { headers }).subscribe({
         next: () => {
-          alert("Budget mis à jour !");
+          this.toastr.success("Budget mis à jour !", 'Succès');
           this.afficherFormulaire = false;
           this.enModeModification = false;
           this.chargerBudgets();
         },
-        error: (err) => console.error("Erreur modification budget :", err)
+        error: (err) => {
+          console.error("Erreur modification budget :", err);
+          this.toastr.error("Une erreur s'est produite lors de la mise à jour du budget.", 'danger');
+          // Forcer la fermeture du modal même en cas d'erreur
+          this.basculerFormulaire();
+        }
       });
     } else {
       // Appelle ta méthode @PostMapping
       this.http.post(this.baseUrl, this.nouveauBudget, { headers }).subscribe({
         next: () => {
-          alert("Budget enregistré !");
+          this.toastr.success("Budget enregistré !", 'Succès');
           this.afficherFormulaire = false;
           this.chargerBudgets();
         },
-        error: (err) => console.error("Erreur ajout budget :", err)
+        error: (err) => {
+          console.error("Erreur ajout budget :", err);
+          this.toastr.error("Une erreur s'est produite lors de l'enregistrement du budget.", 'danger');
+          // Forcer la fermeture du modal même en cas d'erreur
+          this.basculerFormulaire();
+        }
       });
     }
   }
@@ -101,7 +112,7 @@ export class BudgetsComponent implements OnInit {
       // Appelle ta méthode @DeleteMapping("/{id}")
       this.http.delete(`${this.baseUrl}/${id}`, { headers }).subscribe({
         next: () => { 
-          alert("Budget supprimé."); 
+          this.toastr.info("Budget supprimé.", 'Information'); 
           this.chargerBudgets(); 
         },
         error: (err) => console.error("Erreur suppression budget :", err)

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { Formation } from './formation.model';
 
 // Interface représentant l'entité Professeur du Backend
 export interface Professeur {
@@ -9,7 +10,7 @@ export interface Professeur {
   nom: string;
   prenom: string;
   email?: string;
-  specialite: string;
+  formation: Formation; // Remplace l'ancien string "specialite"
 }
 
 @Injectable({

@@ -1,167 +1,228 @@
-<nav class="navbar">
-  <div class="navbar-brand">
-    <span class="navbar-logo-text"> PORTAIL ÉTUDIANT UNCHK</span>
+<nav class="bg-blue-800 text-white px-4 py-3 flex justify-between items-center shadow-md">
+  <div>
+    <span class="text-lg font-bold">PORTAIL ÉTUDIANT UNCHK</span>
   </div>
-  <button (click)="deconnecter()" class="btn-logout">Se déconnecter</button>
+  <button (click)="deconnecter()" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded transition-colors text-sm font-medium">
+    Se déconnecter
+  </button>
 </nav>
 
-<div *ngIf="!chargement && profilEtudiant" class="page-container">
+<div *ngIf="!chargement && profilEtudiant" class="min-h-screen bg-gray-100 p-4 md:p-6 lg:p-8">
   
-  <div class="page-header">
-    <h2>Bienvenue, {{ profilEtudiant.prenom }}</h2>
-    <p class="subtitle">{{ profilEtudiant.formation }} • Promotion {{ profilEtudiant.promo }}</p>
+  <div class="mb-6">
+    <h2 class="text-2xl md:text-3xl font-bold text-gray-800">Bienvenue, {{ profilEtudiant.prenom }}</h2>
+    <p class="text-gray-600 mt-1 text-sm md:text-base">{{ profilEtudiant.formation?.nomFormation }} • Promotion {{ profilEtudiant.promo }}</p>
   </div>
 
-  <div class="tabs-container">
-    <button (click)="changerOnglet('tableau-de-bord')" [class.tab-active]="ongletActif === 'tableau-de-bord'" class="tab-btn">
+  <div class="flex flex-wrap gap-2 mb-6 bg-white p-2 rounded-lg shadow-sm overflow-x-auto">
+    <button (click)="changerOnglet('tableau-de-bord')" 
+            [class.bg-green-200]="ongletActif === 'tableau-de-bord'" 
+            [class.text-black]="ongletActif === 'tableau-de-bord'"
+            class="px-3 md:px-4 py-2 rounded whitespace-nowrap transition-colors font-medium text-sm md:text-base bg-gray-100 hover:bg-gray-200">
        Aperçu Général
     </button>
-    <button (click)="changerOnglet('resultats')" [class.tab-active]="ongletActif === 'resultats'" class="tab-btn">
+    <button (click)="changerOnglet('resultats')" 
+            [class.bg-green-200]="ongletActif === 'resultats'" 
+            [class.text-black]="ongletActif === 'resultats'"
+            class="px-3 md:px-4 py-2 rounded whitespace-nowrap transition-colors font-medium text-sm md:text-base bg-gray-100 hover:bg-gray-200">
        Mes Résultats
     </button>
-    <button (click)="changerOnglet('cours')" [class.tab-active]="ongletActif === 'cours'" class="tab-btn">
+    <button (click)="changerOnglet('cours')" 
+            [class.bg-green-200]="ongletActif === 'cours'" 
+            [class.text-black]="ongletActif === 'cours'"
+            class="px-3 md:px-4 py-2 rounded whitespace-nowrap transition-colors font-medium text-sm md:text-base bg-gray-100 hover:bg-gray-200">
        Programme & Cours
     </button>
-    <button (click)="changerOnglet('profil')" [class.tab-active]="ongletActif === 'profil'" class="tab-btn">
+    <button (click)="changerOnglet('profil')" 
+            [class.bg-green-200]="ongletActif === 'profil'" 
+            [class.text-black]="ongletActif === 'profil'"
+            class="px-3 md:px-4 py-2 rounded whitespace-nowrap transition-colors font-medium text-sm md:text-base bg-gray-100 hover:bg-gray-200">
        Mon Profil & Sécurité
     </button>
   </div>
 
-  <div class="tab-content-area">
+  <div class="w-full">
 
     <div *ngIf="ongletActif === 'tableau-de-bord'">
-      <div class="custom-table-card padding-card" style="width: 100%; box-sizing: border-box;">
-        <h3 class="card-title" style="margin-bottom: 20px;"> Prochains Cours</h3>
+      <div class="bg-white rounded-lg shadow p-4 md:p-6 w-full">
+        <h3 class="text-xl font-semibold text-gray-800 mb-5"> Prochains Cours</h3>
         
-        <div *ngFor="let edt of emploisDuTemps" class="edt-item" style="border-left: 4px solid #2b6cb0; padding-left: 15px; margin-bottom: 20px; padding-bottom: 5px;">
-          <strong style="font-size: 15px; color: #2b6cb0;">{{ edt.jour }} - de {{ edt.heureDebut }} à {{ edt.heureFin }}</strong><br>
+        <div *ngFor="let edt of emploisDuTemps" class="border-l-4 border-blue-600 pl-4 mb-5 pb-2">
+          <strong class="text-sm md:text-base text-blue-600 block">{{ edt.jour }} - de {{ edt.heureDebut }} à {{ edt.heureFin }}</strong>
           
-          <span style="font-weight: 600; color: #2d3748; display: inline-block; margin-top: 6px; font-size: 16px;">
+          <span class="font-semibold text-gray-800 inline-block mt-2 text-base md:text-lg">
             {{ edt.cours?.intitule || 'Cours Planifié' }}
           </span> 
-          <small *ngIf="edt.cours?.code" style="color: #718096; font-size: 13px;"> ({{ edt.cours.code }})</small><br>
+          <small *ngIf="edt.cours?.code" class="text-gray-500 text-sm block"> ({{ edt.cours.code }})</small>
           
-          <div style="margin-top: 8px; font-size: 14px;">
-            <span style="color: #4a5568;">📍 Lieu : </span>
+          <div class="mt-3 text-sm md:text-base">
+            <span class="text-gray-700">📍 Lieu : </span>
             
             <span *ngIf="edt.salle && (edt.salle.startsWith('http://') || edt.salle.startsWith('https://'))">
-              <a [href]="edt.salle" target="_blank" style="color: #2b6cb0; font-weight: bold; text-decoration: underline; word-break: break-all;">
+              <a [href]="edt.salle" target="_blank" class="text-blue-600 font-bold underline break-words">
                 Rejoindre la classe virtuelle 
               </a>
             </span>
             
-            <span *ngIf="edt.salle && !(edt.salle.startsWith('http://') || edt.salle.startsWith('https://'))" style="font-weight: 600; color: #2d3748;">
+            <span *ngIf="edt.salle && !(edt.salle.startsWith('http://') || edt.salle.startsWith('https://'))" class="font-semibold text-gray-800">
               {{ edt.salle }}
             </span>
           </div>
         </div>
 
-        <div *ngIf="emploisDuTemps.length === 0" style="font-size: 14px; color: #a0aec0; text-align: center; font-style: italic; padding: 30px 0;">
+        <div *ngIf="emploisDuTemps.length === 0" class="text-sm md:text-base text-gray-500 text-center italic py-8">
           Aucune séance de cours n'est planifiée pour le moment.
         </div>
       </div>
     </div>
 
-    <div *ngIf="ongletActif === 'resultats'" class="custom-table-card">
-      <div class="card-header-blue"> Relevé de notes provisoire</div>
-      <table class="custom-table">
-        <thead>
-          <tr>
-            <th>Code</th>
-            <th>Matière</th>
-            <th>Semestre</th>
-            <th>Note</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let n of listeNotes">
-            <td class="bold-text">{{ n.cours?.code }}</td>
-            <td>{{ n.cours?.intitule }}</td>
-            <td>{{ n.semestre }}</td>
-            <td class="note-text">{{ n.valeur }} / 20</td>
-          </tr>
-        </tbody>
-      </table>
+    <div *ngIf="ongletActif === 'resultats'" class="bg-white rounded-lg shadow overflow-hidden">
+      <div class="bg-blue-600 text-white px-4 py-3 font-medium">Relevé de notes provisoire</div>
+      <div class="overflow-x-auto">
+        <table class="w-full min-w-[500px]">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-4 py-3 text-left font-semibold text-gray-700">Code</th>
+              <th class="px-4 py-3 text-left font-semibold text-gray-700">Matière</th>
+              <th class="px-4 py-3 text-left font-semibold text-gray-700">Semestre</th>
+              <th class="px-4 py-3 text-left font-semibold text-gray-700">Note</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let n of listeNotes" class="border-t border-gray-100">
+              <td class="px-4 py-3 font-bold">{{ n.cours?.code }}</td>
+              <td class="px-4 py-3">{{ n.cours?.intitule }}</td>
+              <td class="px-4 py-3">{{ n.semestre }}</td>
+              <td class="px-4 py-3 font-medium">{{ n.valeur }} / 20</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <div *ngIf="ongletActif === 'cours'">
-      <div class="custom-table-card padding-card">
-        <h3 class="card-title">📚 Liste des Unités d'Enseignement (UE) ouvertes</h3>
-        <div class="courses-grid-layout">
+      <div class="bg-white rounded-lg shadow p-4 md:p-6">
+        <h3 class="text-xl font-semibold text-gray-800 mb-5">📚 Liste des Unités d'Enseignement (UE) ouvertes</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
           
-          <div *ngFor="let cours of listeCoursBdd" class="course-badge-card" style="display: flex; flex-direction: column; justify-content: space-between; padding: 15px; min-height: 240px; background: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+          <div *ngFor="let cours of listeCoursBdd" class="flex flex-col justify-between p-4 min-h-[240px] bg-white rounded-lg shadow border border-gray-100">
             <div>
-              <span class="course-code-tag" style="background-color: #2b6cb0; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: bold;">
+              <span class="inline-block bg-blue-600 text-white px-2 py-1 rounded text-xs font-bold">
                 {{ cours.code && cours.code.trim() !== '' ? cours.code : 'UE Spéciale' }}
               </span>
-              <h4 class="course-title-text" style="margin: 12px 0 6px 0; color: #2d3748; font-size: 16px;">
+              <h4 class="mt-3 mb-2 text-gray-800 text-base md:text-lg font-medium">
                 {{ cours.intitule && cours.intitule.trim() !== '' ? cours.intitule : 'Intitulé non spécifié' }}
               </h4>
-              <small class="course-credits-text" style="display: block; margin-bottom: 10px; color: #718096;">
+              <small class="block mb-3 text-gray-500">
                 Valeur : {{ cours.credits || 6 }} crédits
               </small>
             </div>
             
-            <div style="display: flex; flex-direction: column; gap: 6px; margin-top: auto;">
+            <div class="flex flex-col gap-2 mt-auto">
               
               <div *ngIf="cours.lienSupport">
-                <a [href]="cours.lienSupport" target="_blank" class="btn-connecter btn-small" 
-                   style="display: inline-block; text-align: center; text-decoration: none; background-color: #2b6cb0; color: white; width: 100%; box-sizing: border-box; font-size: 11px; padding: 6px; border-radius: 4px;">
+                <a [href]="cours.lienSupport" target="_blank" 
+                   class="inline-block w-full text-center text-white bg-blue-600 px-3 py-2 rounded text-xs no-underline">
                    Support écrit disponible
                 </a>
               </div>
-              <div *ngIf="!cours.lienSupport" style="font-size: 11px; color: #a0aec0; text-align: center; font-style: italic; margin: 4px 0;">
+              <div *ngIf="!cours.lienSupport" class="text-xs text-gray-500 text-center italic py-1">
                 Document écrit non fourni
               </div>
 
               <div *ngIf="cours.lienVideo">
-                <a [href]="cours.lienVideo" target="_blank" class="btn-connecter btn-small" 
-                   style="display: inline-block; text-align: center; text-decoration: none; background-color: #dd6b20; color: white; border-color: #dd6b20; width: 100%; box-sizing: border-box; font-size: 11px; padding: 6px; border-radius: 4px;">
+                <a [href]="cours.lienVideo" target="_blank" 
+                   class="inline-block w-full text-center text-white bg-orange-500 px-3 py-2 rounded text-xs no-underline">
                    🎬 Visionner la vidéo
                 </a>
               </div>
-              <div *ngIf="!cours.lienVideo" style="font-size: 11px; color: #a0aec0; text-align: center; font-style: italic; margin: 4px 0;">
+              <div *ngIf="!cours.lienVideo" class="text-xs text-gray-500 text-center italic py-1">
                 Vidéo d'explication non fournie
               </div>
-
             </div>
           </div>
-
         </div>
       </div>
-      </div>
+    </div>
 
-    <div *ngIf="ongletActif === 'profil'" class="profil-grid">
-      <div class="custom-table-card padding-card">
-        <h3 class="card-title">👤 Informations Académiques</h3>
-        <p><strong>INE :</strong> {{ profilEtudiant.ine }}</p>
-        <p><strong>Email :</strong> {{ profilEtudiant.email }}</p>
-        <p><strong>Promotion :</strong> {{ profilEtudiant.promo }}</p>
+    <div *ngIf="ongletActif === 'profil'" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
+      <div class="bg-white rounded-lg shadow p-4 md:p-6">
+        <h3 class="text-xl font-semibold text-gray-800 mb-5">👤 Informations Académiques</h3>
+        <div class="flex items-center gap-4 mb-5 pb-4 border-b border-gray-200">
+          <div class="w-16 h-16 rounded-full bg-blue-600 flex items-center justify-center text-white text-2xl font-bold">
+            {{ profilEtudiant.nom?.charAt(0) || '' }}{{ profilEtudiant.prenom?.charAt(0) || '' }}
+          </div>
+          <div>
+            <h4 class="m-0 text-gray-800 text-lg font-medium">{{ profilEtudiant.prenom }} {{ profilEtudiant.nom }}</h4>
+            <p class="mt-1 text-gray-500 text-sm">Étudiant en {{ profilEtudiant.formation?.nomFormation || 'formation non définie' }}</p>
+          </div>
+        </div>
+        <p class="mb-2"><strong class="text-gray-700">📋 INE :</strong> <span class="text-gray-600">{{ profilEtudiant.ine || 'Non renseigné' }}</span></p>
+        <p class="mb-2"><strong class="text-gray-700">📧 Email :</strong> <span class="text-gray-600">{{ profilEtudiant.user?.username || 'Non renseigné' }}</span></p>
+        <p class="mb-2"><strong class="text-gray-700">🎓 Niveau :</strong> <span class="text-gray-600">{{ profilEtudiant.formation?.niveau || 'non spécifié' }}</span></p>
+        <p class="mb-2"><strong class="text-gray-700">📅 Date de naissance :</strong> <span class="text-gray-600">{{ profilEtudiant.dateNaissance || 'Non renseignée' }}</span></p>
+        <p class="mb-2"><strong class="text-gray-700">🏫 Formation :</strong> <span class="text-gray-600">{{ profilEtudiant.formation?.nomFormation || 'Non renseignée' }} (niveau {{ profilEtudiant.formation?.niveau || 'non spécifié' }})</span></p>
       </div>
       
-      <div class="custom-table-card padding-card">
-        <h3 class="card-title"> Paramètres de sécurité</h3>
-        <div *ngIf="messageSuccesModif" class="success-message">{{ messageSuccesModif }}</div>
-        <input type="password" placeholder="Ancien mot de passe" [(ngModel)]="ancienMotDePasse" class="input-full">
-        <input type="password" placeholder="Nouveau mot de passe" [(ngModel)]="nouveauMotDePasse" class="input-full margin-bottom-sm">
-        <button class="btn-connecter width-100" (click)="mettreAJourMotDePasse()">Mettre à jour</button>
+      <div class="bg-white rounded-lg shadow p-4 md:p-6">
+        <h3 class="text-xl font-semibold text-gray-800 mb-5">✏️ Modifier mon nom et prénom</h3>
+        <input 
+          type="text" 
+          placeholder="Nouveau nom" 
+          [(ngModel)]="nouveauNom" 
+          class="w-full p-3 my-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+        <input 
+          type="text" 
+          placeholder="Nouveau prénom" 
+          [(ngModel)]="nouveauPrenom" 
+          class="w-full p-3 my-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+        <button 
+          (click)="mettreAJourNomPrenom()" 
+          class="mt-3 w-full p-3 bg-blue-600 text-white border-none rounded cursor-pointer hover:bg-blue-700 transition-colors font-medium"
+        >
+          Mettre à jour nom et prénom
+        </button>
+      </div>
+      
+      <div class="bg-white rounded-lg shadow p-4 md:p-6">
+        <h3 class="text-xl font-semibold text-gray-800 mb-5">🔒 Paramètres de sécurité</h3>
+        <input 
+          type="password" 
+          placeholder="Ancien mot de passe" 
+          [(ngModel)]="ancienMotDePasse" 
+          class="w-full p-3 my-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+        <input 
+          type="password" 
+          placeholder="Nouveau mot de passe" 
+          [(ngModel)]="nouveauMotDePasse" 
+          class="w-full p-3 my-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+        <button 
+          (click)="mettreAJourMotDePasse()" 
+          class="mt-3 w-full p-3 bg-orange-500 text-white border-none rounded cursor-pointer hover:bg-orange-600 transition-colors font-medium"
+        >
+          Modifier le mot de passe
+        </button>
       </div>
     </div>
 
   </div>
 </div>
 
-<div *ngIf="chargement" class="loader-container">
-  <div class="spinner"></div>
-  <p class="loader-text">Chargement sécurisé de vos données UNCHK...</p>
+<div *ngIf="chargement" class="fixed inset-0 bg-white bg-opacity-90 flex flex-col items-center justify-center">
+  <div class="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+  <p class="mt-4 text-gray-600">Chargement sécurisé de vos données UNCHK...</p>
 </div>
 
-<footer class="main-footer">
+<footer class="bg-gray-800 text-white px-4 py-6 flex flex-col md:flex-row justify-between items-center gap-2">
   <div>
     &copy; 2026 <strong>UNCHK</strong> - Portail Numérique Universitaire. Tous droits réservés.
   </div>
-  <div class="footer-tags">
-    <span class="version-tag">v1.0.0</span>
+  <div class="flex flex-wrap gap-3 justify-center text-sm text-gray-400">
+    <span class="bg-gray-700 px-2 py-1 rounded text-xs">v1.0.0</span>
     <span>Direction des Systèmes d'Information (DSI)</span>
   </div>
 </footer>

@@ -1,0 +1,279 @@
+<nav class="bg-gray-800 px-4 py-3 flex flex-col sm:flex-row justify-between items-center gap-4 shadow-lg">
+  <div class="flex items-center gap-3">
+    <div class="bg-white text-blue-900 px-3 py-1 rounded font-black text-sm">
+      UCHK
+    </div>
+    <span class="text-white font-medium">Portail Numérique</span>
+  </div>
+
+  <div class="flex flex-wrap justify-center gap-4 sm:gap-6">
+    <a routerLink="/dashboard" [queryParams]="{page: 'etudiants'}" class="cursor-pointer px-3 py-2 rounded transition-colors duration-200" [ngClass]="ongletActif === 'etudiants' ? 'bg-blue-600 text-white' : 'text-gray-300 hover:text-white hover:bg-gray-700'">Étudiants</a>
+    <a routerLink="/dashboard" [queryParams]="{page: 'professeurs'}" class="cursor-pointer px-3 py-2 rounded transition-colors duration-200" [ngClass]="ongletActif === 'professeurs' ? 'bg-blue-600 text-white' : 'text-gray-300 hover:text-white hover:bg-gray-700'">Professeurs</a>
+    <a routerLink="/budgets" class="text-gray-300 hover:text-white hover:bg-gray-700 px-3 py-2 rounded transition-colors duration-200">Budgets</a>
+    <a routerLink="/formations" class="text-gray-300 hover:text-white hover:bg-gray-700 px-3 py-2 rounded transition-colors duration-200">Formations</a>
+  </div>
+
+  <div>
+    <button (click)="onLogout()" class="bg-red-600 hover:bg-red-700 text-white border-0 px-4 py-2 rounded cursor-pointer flex items-center gap-2 transition-colors duration-200">
+      <span class="material-icons text-sm">logout</span>
+      Déconnexion
+    </button>
+  </div>
+</nav>
+ 
+<div class="max-w-7xl mx-auto px-4 py-6">
+
+  <div *ngIf="ongletActif === 'etudiants'">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+      <div>
+        <h2 class="text-2xl font-bold text-gray-800 m-0">Registre des Étudiants Inscrits</h2>
+        <p class="text-gray-600 mt-1">Fiches d'identification, filières et effectifs globaux de l'université.</p>
+      </div>
+      <div class="flex flex-wrap gap-3">
+        <button (click)="exporterPDF()" class="bg-gray-600 hover:bg-gray-700 text-white border-0 px-4 py-2 rounded-lg cursor-pointer font-semibold flex items-center gap-2 transition-colors duration-200">
+          <span class="material-icons text-sm">picture_as_pdf</span>
+          Exporter en PDF
+        </button>
+        <button (click)="basculerFormulaire()" class="bg-blue-600 hover:bg-blue-700 text-white border-0 px-4 py-2 rounded-lg cursor-pointer font-semibold flex items-center gap-2 transition-colors duration-200">
+          <span class="material-icons text-sm">add</span>
+          Ajouter un Étudiant
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="afficherFormulaire" class="fixed inset-0 bg-black/50 flex justify-center items-center z-[1000] p-4">
+      <div class="bg-white p-6 rounded-xl w-full max-w-[500px] max-h-[90vh] overflow-y-auto shadow-2xl">
+        <div class="flex justify-between items-center mb-5 border-b border-gray-200 pb-3">
+          <h3 class="m-0 text-gray-800 flex items-center gap-2 text-lg font-bold">
+            <span class="material-icons text-2xl text-blue-600">{{ enModeModification ? 'edit' : 'add_circle' }}</span>
+            {{ enModeModification ? 'Modifier l\'Étudiant' : 'Ajouter un Étudiant' }}
+          </h3>
+          <button type="button" (click)="basculerFormulaire()" class="bg-none border-none text-2xl cursor-pointer text-gray-400 hover:text-gray-600 transition-colors">
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+        <form (ngSubmit)="validerAjoutEtudiant($event)">
+          <div class="grid grid-cols-1 gap-4 mb-4">
+            <div>
+              <label class="block mb-2 text-sm font-semibold text-gray-700 flex items-center gap-1">
+                <span class="material-icons text-sm text-blue-600">badge</span>
+                Code INE
+              </label>
+              <input type="text" [(ngModel)]="nouvelEtudiant.ine" name="ine" required class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+            </div>
+            <div>
+              <label class="block mb-2 text-sm font-semibold text-gray-700 flex items-center gap-1">
+                <span class="material-icons text-sm text-blue-600">person</span>
+                Prénom
+              </label>
+              <input type="text" [(ngModel)]="nouvelEtudiant.prenom" name="prenom" required class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+            </div>
+            <div>
+              <label class="block mb-2 text-sm font-semibold text-gray-700 flex items-center gap-1">
+                <span class="material-icons text-sm text-blue-600">person</span>
+                Nom
+              </label>
+              <input type="text" [(ngModel)]="nouvelEtudiant.nom" name="nom" required class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+            </div>
+            <div>
+              <label class="block mb-2 text-sm font-semibold text-gray-700 flex items-center gap-1">
+                <span class="material-icons text-sm text-blue-600">email</span>
+                Email Académique
+              </label>
+              <input type="email" [(ngModel)]="nouvelEtudiant.email" name="email" required class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+            </div>
+            <div>
+              <label class="block mb-2 text-sm font-semibold text-gray-700 flex items-center gap-1">
+                <span class="material-icons text-sm text-blue-600">school</span>
+                Cursus / Formation
+              </label>
+              <select [(ngModel)]="nouvelEtudiant.formation" name="formation" required class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                <option [ngValue]="null">Sélectionner une formation</option>
+                <option *ngFor="let f of listeFormations" [ngValue]="f">{{ f.nomFormation }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex justify-end gap-3 border-t border-gray-200 pt-4">
+            <button type="button" (click)="basculerFormulaire()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 border-0 px-4 py-2 rounded-lg cursor-pointer font-semibold flex items-center gap-2 transition-colors duration-200">
+              <span class="material-icons text-sm">cancel</span>
+              Annuler
+            </button>
+            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white border-0 px-4 py-2 rounded-lg cursor-pointer font-bold flex items-center gap-2 transition-colors duration-200">
+              <span class="material-icons text-sm">save</span>
+              Enregistrer
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
+      <div class="overflow-x-auto">
+        <table class="w-full min-w-[700px]">
+          <thead>
+            <tr class="bg-gray-50 border-b-2 border-gray-200">
+              <th class="p-4 text-left text-gray-600 font-semibold">Code INE</th>
+              <th class="p-4 text-left text-gray-600 font-semibold">Identité (Prénom & Nom)</th>
+              <th class="p-4 text-left text-gray-600 font-semibold">Email Académique</th>
+              <th class="p-4 text-left text-gray-600 font-semibold">Cursus / Formation</th>
+              <th class="p-4 text-center text-gray-600 font-semibold">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let e of listeEtudiants" class="border-b border-gray-200 transition-colors duration-200 hover:bg-gray-50">
+              <td class="p-4 font-semibold text-gray-800">{{ e.ine }}</td>
+              <td class="p-4 font-semibold text-gray-800">{{ e.prenom }} {{ e.nom }}</td>
+              <td class="p-4 text-gray-600">{{ e.user?.username || 'Non renseigné' }}</td>
+              <td class="p-4"><span class="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm font-medium">{{ e.formation?.nomFormation }}</span></td>
+              <td class="p-4">
+                <div class="flex justify-center gap-3">
+                  <button (click)="ouvrirModificationEtudiant(e)" class="bg-yellow-400 hover:bg-yellow-500 text-yellow-900 border-0 px-3 py-2 rounded cursor-pointer flex items-center transition-colors duration-200">
+                    <span class="material-icons text-sm">edit</span>
+                  </button>
+                  <button (click)="supprimerEtudiant(e.id)" class="bg-red-500 hover:bg-red-600 text-white border-0 px-3 py-2 rounded cursor-pointer flex items-center transition-colors duration-200">
+                    <span class="material-icons text-sm">delete</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="listeEtudiants.length === 0">
+              <td colspan="5" class="p-12 text-center text-gray-400">Aucun étudiant enregistré.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="ongletActif === 'professeurs'">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+      <div>
+        <h2 class="text-2xl font-bold text-gray-800 m-0">Registre du Corps Enseignant</h2>
+        <p class="text-gray-600 mt-1">Fiches d'identification, spécialités et gestion des accès des professeurs.</p>
+      </div>
+      <div class="flex flex-wrap gap-3">
+        <button (click)="exporterPDF()" class="bg-gray-600 hover:bg-gray-700 text-white border-0 px-4 py-2 rounded-lg cursor-pointer font-semibold flex items-center gap-2 transition-colors duration-200">
+          <span class="material-icons text-sm">picture_as_pdf</span>
+          Exporter en PDF
+        </button>
+        <button (click)="basculerFormulaireProf()" class="bg-blue-600 hover:bg-blue-700 text-white border-0 px-4 py-2 rounded-lg cursor-pointer font-semibold flex items-center gap-2 transition-colors duration-200">
+          <span class="material-icons text-sm">add</span>
+          Ajouter un Professeur
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="afficherFormulaireProf" class="fixed inset-0 bg-black/50 flex justify-center items-center z-[1000] p-4">
+      <div class="bg-white p-6 rounded-xl w-full max-w-[500px] max-h-[90vh] overflow-y-auto shadow-2xl">
+        <div class="flex justify-between items-center mb-5 border-b border-gray-200 pb-3">
+          <h3 class="m-0 text-gray-800 flex items-center gap-2 text-lg font-bold">
+            <span class="material-icons text-2xl text-blue-600">{{ enModeModificationProf ? 'edit' : 'add_circle' }}</span>
+            {{ enModeModificationProf ? 'Modifier le Professeur' : 'Ajouter un Professeur' }}
+          </h3>
+          <button type="button" (click)="basculerFormulaireProf()" class="bg-none border-none text-2xl cursor-pointer text-gray-400 hover:text-gray-600 transition-colors">
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+        <form (ngSubmit)="validerAjoutProfesseur($event)">
+          <div class="grid grid-cols-1 gap-4 mb-4">
+            <div>
+              <label class="block mb-2 text-sm font-semibold text-gray-700 flex items-center gap-1">
+                <span class="material-icons text-sm text-blue-600">badge</span>
+                Code Matricule
+              </label>
+              <input type="text" [(ngModel)]="nouveauProfesseur.codeMatricule" name="codeMatricule" required class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+            </div>
+            <div>
+              <label class="block mb-2 text-sm font-semibold text-gray-700 flex items-center gap-1">
+                <span class="material-icons text-sm text-blue-600">person</span>
+                Prénom
+              </label>
+              <input type="text" [(ngModel)]="nouveauProfesseur.prenom" name="prenom" required class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+            </div>
+            <div>
+              <label class="block mb-2 text-sm font-semibold text-gray-700 flex items-center gap-1">
+                <span class="material-icons text-sm text-blue-600">person</span>
+                Nom
+              </label>
+              <input type="text" [(ngModel)]="nouveauProfesseur.nom" name="nom" required class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+            </div>
+            <div>
+              <label class="block mb-2 text-sm font-semibold text-gray-700 flex items-center gap-1">
+                <span class="material-icons text-sm text-blue-600">email</span>
+                Email Académique
+              </label>
+              <input type="email" [(ngModel)]="nouveauProfesseur.email" name="email" required class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+            </div>
+            <div>
+              <label class="block mb-2 text-sm font-semibold text-gray-700 flex items-center gap-1">
+                <span class="material-icons text-sm text-blue-600">school</span>
+                Formation / Département
+              </label>
+              <select [(ngModel)]="nouveauProfesseur.formation" name="formation" required class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                <option [ngValue]="null">Sélectionner une formation</option>
+                <option *ngFor="let f of listeFormations" [ngValue]="f">{{ f.nomFormation }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex justify-end gap-3 border-t border-gray-200 pt-4">
+            <button type="button" (click)="basculerFormulaireProf()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 border-0 px-4 py-2 rounded-lg cursor-pointer font-semibold flex items-center gap-2 transition-colors duration-200">
+              <span class="material-icons text-sm">cancel</span>
+              Annuler
+            </button>
+            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white border-0 px-4 py-2 rounded-lg cursor-pointer font-bold flex items-center gap-2 transition-colors duration-200">
+              <span class="material-icons text-sm">save</span>
+              Enregistrer
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
+      <div class="overflow-x-auto">
+        <table class="w-full min-w-[700px]">
+          <thead>
+            <tr class="bg-gray-50 border-b-2 border-gray-200">
+              <th class="p-4 text-left text-gray-600 font-semibold">Code Matricule</th>
+              <th class="p-4 text-left text-gray-600 font-semibold">Identité (Prénom & Nom)</th>
+              <th class="p-4 text-left text-gray-600 font-semibold">Email Académique</th>
+              <th class="p-4 text-left text-gray-600 font-semibold">Formation</th>
+              <th class="p-4 text-center text-gray-600 font-semibold">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of listeProfesseurs" class="border-b border-gray-200 transition-colors duration-200 hover:bg-gray-50">
+              <td class="p-4 font-semibold text-gray-800">{{ p.codeMatricule }}</td>
+              <td class="p-4 font-semibold text-gray-800">{{ p.prenom }} {{ p.nom }}</td>
+              <td class="p-4 text-gray-600">{{ p.user?.username || 'Non renseigné' }}</td>
+              <td class="p-4"><span class="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">{{ p.formation?.nomFormation }}</span></td>
+              <td class="p-4">
+                <div class="flex justify-center gap-3">
+                  <button (click)="ouvrirModificationProfesseur(p)" class="bg-yellow-400 hover:bg-yellow-500 text-yellow-900 border-0 px-3 py-2 rounded cursor-pointer flex items-center transition-colors duration-200">
+                    <span class="material-icons text-sm">edit</span>
+                  </button>
+                  <button (click)="supprimerProfesseur(p.id)" class="bg-red-500 hover:bg-red-600 text-white border-0 px-3 py-2 rounded cursor-pointer flex items-center transition-colors duration-200">
+                    <span class="material-icons text-sm">delete</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="listeProfesseurs.length === 0">
+              <td colspan="5" class="p-12 text-center text-gray-400">Aucun professeur enregistré.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <footer class="mt-10 pt-5 border-t border-gray-200 flex flex-col md:flex-row justify-between items-center gap-4 text-gray-500 text-sm">
+    <div>
+      &copy; 2026 <strong class="text-gray-700">UCHK</strong> - Portail Numérique Universitaire. Tous droits réservés.
+    </div>
+    <div class="flex items-center gap-4">
+      <span class="bg-blue-50 text-blue-600 px-3 py-1 rounded-full font-semibold">v1.0.0</span>
+      <span>Direction des Systèmes d'Information (DSI)</span>
+    </div>
+  </footer>
+</div>

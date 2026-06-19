@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-login',
@@ -16,7 +17,7 @@ export class LoginComponent {
   password = '';
   errorMessage = '';
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(private http: HttpClient, private router: Router, private toast: ToastrService) {}
 
   onLogin(event: Event) {
     event.preventDefault(); 
@@ -34,20 +35,20 @@ export class LoginComponent {
         localStorage.setItem('role', response.role || 'PROFESSEUR');
         localStorage.setItem('username', identifiant);
 
-        alert('Connexion réussie !');
+        this.toast.success('Connexion réussie !', 'Succès');
         
         // Redirection dynamique basée sur le rôle renvoyé par l'API Spring Boot
         this.redirectionDynamique(response.role, identifiant);
       },
       error: (err) => {
         console.warn("Le Backend a renvoyé une erreur ou est éteint. Mode sécurité activé pour le correcteur.", err);
-        
+        this.toast.error("Une erreur est survenue lors de l'authentification. veuillez ressayer.", 'Erreur');
         // CAS 2 : SÉCURITÉ POUR LE DÉPÔT (Conservé pour ton correcteur)
         if (identifiant === 'admin' || identifiant === 'abdou' || identifiant === 'faye' || identifiant === 'awa' || identifiant.includes('prof') || identifiant.includes('etudiant')) {
           localStorage.setItem('token', 'token-de-secours-depot');
           localStorage.setItem('username', identifiant);
           
-          alert('Connexion réussie ! (Mode Validation Enseignant/Étudiant)');
+          this.toast.success('Connexion réussie ! (Mode Validation Enseignant/Étudiant)', 'Succès');
           
           // Déduction du rôle fictif pour le mode secours
           let roleFictif = 'ADMIN';

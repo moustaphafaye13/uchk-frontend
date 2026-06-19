@@ -1,160 +1,210 @@
-<nav class="navbar">
-  <div class="navbar-brand">
-    <div style="background-color: #fff; color: #1a365d; padding: 5px 10px; border-radius: 4px; font-weight: 900; font-size: 0.9rem;">
+<nav class="bg-gray-800 px-4 py-3 flex flex-col sm:flex-row justify-between items-center gap-4 shadow-lg">
+  <div class="flex items-center gap-3">
+    <div class="bg-white text-blue-900 px-3 py-1 rounded font-black text-sm">
       UCHK
     </div>
-    <span class="navbar-logo-text">Portail Numérique</span>
+    <span class="text-white font-medium">Portail Numérique</span>
   </div>
 
-  <div class="navbar-menu">
-    <a routerLink="/etudiants" class="nav-link">Étudiants</a>
-    <a routerLink="/budgets" class="nav-link">Budgets</a>
-    <a routerLink="/formations" class="nav-link active">Formations</a>
+  <div class="flex flex-wrap justify-center gap-4 sm:gap-6">
+    <a routerLink="/dashboard" [queryParams]="{page: 'etudiants'}" class="text-gray-300 hover:text-white hover:bg-gray-700 px-3 py-2 rounded transition-colors duration-200">Étudiants</a>
+    <a routerLink="/dashboard" [queryParams]="{page: 'professeurs'}" class="text-gray-300 hover:text-white hover:bg-gray-700 px-3 py-2 rounded transition-colors duration-200">Professeurs</a>
+    <a routerLink="/budgets" class="text-gray-300 hover:text-white hover:bg-gray-700 px-3 py-2 rounded transition-colors duration-200">Budgets</a>
+    <a routerLink="/formations" class="bg-blue-600 text-white px-3 py-2 rounded transition-colors duration-200">Formations</a>
   </div>
 
   <div>
-    <button (click)="onLogout()" class="btn-logout">Déconnexion</button>
+    <button (click)="onLogout()" class="bg-red-600 hover:bg-red-700 text-white border-0 px-4 py-2 rounded cursor-pointer flex items-center gap-2 transition-colors duration-200">
+      <span class="material-icons text-sm">logout</span>
+      Déconnexion
+    </button>
   </div>
 </nav>
-
-<div class="page-container">
-  
-  <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+ 
+<div class="max-w-7xl mx-auto px-4 py-6">
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
     <div>
-      <h2>Catalogue des Formations & Offres Académiques</h2>
-      <p style="color: #718096; margin: 0;">Suivi des effectifs par genre, sessions, types et financements octroyés.</p>
+      <h2 class="text-2xl font-bold text-gray-800 m-0">Catalogue des Formations & Offres Académiques</h2>
+      <p class="text-gray-600 mt-1">Suivi des effectifs par genre, sessions, types et financements octroyés.</p>
     </div>
-    <div style="display: flex; gap: 10px;">
-      <button (click)="exporterPDF()" style="background-color: #4a5568; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px;">
-        🖨️ Exporter en PDF
+    <div class="flex flex-wrap gap-3">
+      <button (click)="exporterPDF()" class="bg-gray-600 hover:bg-gray-700 text-white border-0 px-4 py-2 rounded-lg cursor-pointer font-semibold flex items-center gap-2 transition-colors duration-200">
+        <span class="material-icons text-sm">picture_as_pdf</span>
+        Exporter en PDF
       </button>
       
-      <button (click)="basculerFormulaire()" style="background-color: #2b6cb0; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">
-        ➕ Ajouter une Formation
+      <button (click)="basculerFormulaire()" class="bg-blue-600 hover:bg-blue-700 text-white border-0 px-4 py-2 rounded-lg cursor-pointer font-semibold flex items-center gap-2 transition-colors duration-200">
+        <span class="material-icons text-sm">add</span>
+        Ajouter une Formation
       </button>
     </div>
   </div>
 
-  <div *ngIf="afficherFormulaire" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 2000;">
-    <div style="background-color: #ffffff; padding: 30px; border-radius: 8px; width: 90%; max-width: 800px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); max-height: 90vh; overflow-y: auto;">
-      
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px;">
-        <h3 style="margin: 0; color: #1a365d;">
-          {{ enModeModification ? '✏️ Modifier la Formation' : '➕ Nouvelle Offre de Formation' }}
+  <div *ngIf="afficherFormulaire" class="fixed inset-0 bg-black/50 flex justify-center items-center z-[1000] p-4">
+    <div class="bg-white p-6 rounded-xl w-full max-w-[800px] max-h-[90vh] overflow-y-auto shadow-2xl">
+      <div class="flex justify-between items-center mb-5 border-b border-gray-200 pb-3">
+        <h3 class="m-0 text-gray-800 flex items-center gap-2 text-lg font-bold">
+          <span class="material-icons text-2xl text-blue-600">{{ enModeModification ? 'edit' : 'add_circle' }}</span>
+          {{ enModeModification ? 'Modifier la Formation' : 'Nouvelle Offre de Formation' }}
         </h3>
-        <button type="button" (click)="basculerFormulaire()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #a0aec0;">&times;</button>
+        <button type="button" (click)="basculerFormulaire()" class="bg-none border-none text-2xl cursor-pointer text-gray-400 hover:text-gray-600 transition-colors">
+          <span class="material-icons">close</span>
+        </button>
       </div>
 
       <form #formationForm="ngForm" (ngSubmit)="validerAjoutFormation($event)">
-        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-          <div>
-            <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Nom de la Formation</label>
-            <input type="text" name="nomFormation" [(ngModel)]="nouvelleFormation.nomFormation" required style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          <div class="md:col-span-2">
+            <label class="block mb-2 text-sm font-semibold text-gray-700 flex items-center gap-1">
+              <span class="material-icons text-sm text-blue-600">school</span>
+              Nom de la Formation
+            </label>
+            <input type="text" name="nomFormation" [(ngModel)]="nouvelleFormation.nomFormation" required class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
           </div>
           <div>
-            <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Niveau</label>
-            <select name="niveau" [(ngModel)]="nouvelleFormation.niveau" style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;">
+            <label class="block mb-2 text-sm font-semibold text-gray-700 flex items-center gap-1">
+              <span class="material-icons text-sm text-blue-600">grade</span>
+              Niveau
+            </label>
+            <select name="niveau" [(ngModel)]="nouvelleFormation.niveau" class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
               <option value="Licence">Licence</option>
               <option value="Master">Master</option>
               <option value="Doctorat">Doctorat</option>
             </select>
           </div>
           <div>
-            <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Type</label>
-            <select name="typeFormation" [(ngModel)]="nouvelleFormation.typeFormation" style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;">
+            <label class="block mb-2 text-sm font-semibold text-gray-700 flex items-center gap-1">
+              <span class="material-icons text-sm text-blue-600">category</span>
+              Type
+            </label>
+            <select name="typeFormation" [(ngModel)]="nouvelleFormation.typeFormation" class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
               <option value="Initiale">Initiale</option>
               <option value="Continue">Continue</option>
             </select>
           </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 15px;">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
           <div>
-            <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Date Début</label>
-            <input type="text" name="dateDebut" [(ngModel)]="nouvelleFormation.dateDebut" style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;" placeholder="JJ/MM/AAAA">
+            <label class="block mb-2 text-sm font-semibold text-gray-700 flex items-center gap-1">
+              <span class="material-icons text-sm text-blue-600">event</span>
+              Date Début
+            </label>
+            <input type="text" name="dateDebut" [(ngModel)]="nouvelleFormation.dateDebut" class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" placeholder="JJ/MM/AAAA">
           </div>
           <div>
-            <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Date Fin</label>
-            <input type="text" name="dateFin" [(ngModel)]="nouvelleFormation.dateFin" style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;" placeholder="JJ/MM/AAAA">
+            <label class="block mb-2 text-sm font-semibold text-gray-700 flex items-center gap-1">
+              <span class="material-icons text-sm text-blue-600">event_available</span>
+              Date Fin
+            </label>
+            <input type="text" name="dateFin" [(ngModel)]="nouvelleFormation.dateFin" class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" placeholder="JJ/MM/AAAA">
           </div>
           <div>
-            <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Financement</label>
-            <input type="text" name="typeFinancement" [(ngModel)]="nouvelleFormation.typeFinancement" style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;">
+            <label class="block mb-2 text-sm font-semibold text-gray-700 flex items-center gap-1">
+              <span class="material-icons text-sm text-blue-600">monetization_on</span>
+              Financement
+            </label>
+            <input type="text" name="typeFinancement" [(ngModel)]="nouvelleFormation.typeFinancement" class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
           </div>
           <div>
-            <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Montant (FCFA)</label>
-            <input type="number" name="montantFinancement" [(ngModel)]="nouvelleFormation.montantFinancement" style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;">
+            <label class="block mb-2 text-sm font-semibold text-gray-700 flex items-center gap-1">
+              <span class="material-icons text-sm text-blue-600">attach_money</span>
+              Montant (FCFA)
+            </label>
+            <input type="number" name="montantFinancement" [(ngModel)]="nouvelleFormation.montantFinancement" class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
           </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
-            <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Nombre d'Hommes</label>
-            <input type="number" name="nombreFormesHommes" [(ngModel)]="nouvelleFormation.nombreFormesHommes" style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;">
+            <label class="block mb-2 text-sm font-semibold text-gray-700 flex items-center gap-1">
+              <span class="material-icons text-sm text-blue-600">male</span>
+              Nombre d'Hommes
+            </label>
+            <input type="number" name="nombreFormesHommes" [(ngModel)]="nouvelleFormation.nombreFormesHommes" class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
           </div>
           <div>
-            <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Nombre de Femmes</label>
-            <input type="number" name="nombreFormesFemmes" [(ngModel)]="nouvelleFormation.nombreFormesFemmes" style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;">
+            <label class="block mb-2 text-sm font-semibold text-gray-700 flex items-center gap-1">
+              <span class="material-icons text-sm text-blue-600">female</span>
+              Nombre de Femmes
+            </label>
+            <input type="number" name="nombreFormesFemmes" [(ngModel)]="nouvelleFormation.nombreFormesFemmes" class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
           </div>
         </div>
 
-        <div style="display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid #e2e8f0; padding-top: 15px;">
-          <button type="button" (click)="basculerFormulaire()" style="background-color: #e2e8f0; color: #4a5568; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">
+        <div class="flex justify-end gap-3 border-t border-gray-200 pt-4">
+          <button type="button" (click)="basculerFormulaire()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 border-0 px-4 py-2 rounded-lg cursor-pointer font-semibold flex items-center gap-2 transition-colors duration-200">
+            <span class="material-icons text-sm">cancel</span>
             Annuler
           </button>
-          <button type="submit" [disabled]="!formationForm.form.valid" style="background-color: #48bb78; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold;" [style.opacity]="formationForm.form.valid ? '1' : '0.5'">
+          <button type="submit" [disabled]="!formationForm.form.valid" class="bg-green-600 hover:bg-green-700 text-white border-0 px-4 py-2 rounded-lg cursor-pointer font-bold flex items-center gap-2 transition-colors duration-200" [class.opacity-50]="!formationForm.form.valid">
+            <span class="material-icons text-sm">save</span>
             {{ enModeModification ? 'Sauvegarder' : 'Enregistrer la Formation' }}
           </button>
         </div>
       </form>
-
     </div>
   </div>
 
-  <div class="custom-table-card">
-    <table class="custom-table">
-      <thead>
-        <tr>
-          <th>Intitulé de Formation</th>
-          <th>Niveau / Type</th>
-          <th>Période</th>
-          <th>Effectifs (H / F)</th>
-          <th>Financement</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let f of listeFormations">
-          <td><strong>{{ f.nomFormation }}</strong></td>
-          <td>
-            <span style="background-color: #e2e8f0; color: #2d3748; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; margin-right: 5px;">{{ f.niveau }}</span>
-            <span style="background-color: #edf2f7; color: #4a5568; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem;">{{ f.typeFormation }}</span>
-          </td>
-          <td style="font-size: 0.9rem; color: #4a5568;">Du {{ f.dateDebut || '?' }} au {{ f.dateFin || '?' }}</td>
-          <td>👨‍🎓 {{ f.nombreFormesHommes || 0 }} | 👩‍🎓 {{ f.nombreFormesFemmes || 0 }}</td>
-          <td>
-            <span *ngIf="f.montantFinancement" style="color: #2f855a; font-weight: bold;">{{ f.montantFinancement | number }} F ({{ f.typeFinancement }})</span>
-            <span *ngIf="!f.montantFinancement" style="color: #a0aec0; font-style: italic;">Aucun</span>
-          </td>
-          <td>
-            <div style="display: flex; gap: 6px;">
-              <button (click)="ouvrirModificationFormation(f)" style="background-color: #ecc94b; color: #744210; border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer;">✏️</button>
-              <button (click)="supprimerFormation(f.id)" style="background-color: #e53e3e; color: white; border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer;">🗑️</button>
-            </div>
-          </td>
-        </tr>
-        <tr *ngIf="listeFormations.length === 0">
-          <td colspan="6" style="text-align: center; color: #718096; padding: 20px;">Aucune formation disponible.</td>
-        </tr>
-      </tbody>
-    </table>
+  <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
+    <div class="overflow-x-auto">
+      <table class="w-full min-w-[800px]">
+        <thead>
+          <tr class="bg-gray-50 border-b-2 border-gray-200">
+            <th class="p-4 text-left text-gray-600 font-semibold">Intitulé de Formation</th>
+            <th class="p-4 text-left text-gray-600 font-semibold">Niveau / Type</th>
+            <th class="p-4 text-left text-gray-600 font-semibold">Période</th>
+            <th class="p-4 text-left text-gray-600 font-semibold">Effectifs (H / F)</th>
+            <th class="p-4 text-left text-gray-600 font-semibold">Financement</th>
+            <th class="p-4 text-center text-gray-600 font-semibold">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let f of listeFormations" class="border-b border-gray-200 transition-colors duration-200 hover:bg-gray-50">
+            <td class="p-4 font-semibold text-gray-800">{{ f.nomFormation }}</td>
+            <td class="p-4">
+              <span class="bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm font-medium mr-2">{{ f.niveau }}</span>
+              <span class="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm">{{ f.typeFormation }}</span>
+            </td>
+            <td class="p-4 text-gray-600">Du {{ f.dateDebut || '?' }} au {{ f.dateFin || '?' }}</td>
+            <td class="p-4">
+              <span class="flex items-center gap-1">
+                <span class="material-icons text-sm">male</span> {{ f.nombreFormesHommes || 0 }}
+              </span>
+              <span class="mx-2">|</span>
+              <span class="flex items-center gap-1">
+                <span class="material-icons text-sm">female</span> {{ f.nombreFormesFemmes || 0 }}
+              </span>
+            </td>
+            <td class="p-4">
+              <span *ngIf="f.montantFinancement" class="text-green-600 font-semibold">{{ f.montantFinancement | number }} F ({{ f.typeFinancement }})</span>
+              <span *ngIf="!f.montantFinancement" class="text-gray-400 italic">Aucun</span>
+            </td>
+            <td class="p-4">
+              <div class="flex justify-center gap-3">
+                <button (click)="ouvrirModificationFormation(f)" class="bg-yellow-400 hover:bg-yellow-500 text-yellow-900 border-0 px-3 py-2 rounded cursor-pointer flex items-center transition-colors duration-200">
+                  <span class="material-icons text-sm">edit</span>
+                </button>
+                <button (click)="supprimerFormation(f.id)" class="bg-red-500 hover:bg-red-600 text-white border-0 px-3 py-2 rounded cursor-pointer flex items-center transition-colors duration-200">
+                  <span class="material-icons text-sm">delete</span>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="listeFormations.length === 0">
+            <td colspan="6" class="p-12 text-center text-gray-400">Aucune formation disponible.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
-  <footer style="margin-top: 40px; padding: 20px 0; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; color: #718096; font-size: 0.85rem;">
+
+  <footer class="mt-10 pt-5 border-t border-gray-200 flex flex-col md:flex-row justify-between items-center gap-4 text-gray-500 text-sm">
     <div>
-      &copy; 2026 <strong>UCHK</strong> - Portail Numérique Universitaire. Tous droits réservés.
+      &copy; 2026 <strong class="text-gray-700">UCHK</strong> - Portail Numérique Universitaire. Tous droits réservés.
     </div>
-    <div style="display: flex; gap: 15px;">
-      <span style="background-color: #ebf8ff; color: #2b6cb0; padding: 4px 10px; border-radius: 9999px; font-weight: 600;">v1.0.0</span>
+    <div class="flex items-center gap-4">
+      <span class="bg-blue-50 text-blue-600 px-3 py-1 rounded-full font-semibold">v1.0.0</span>
       <span>Direction des Systèmes d'Information (DSI)</span>
     </div>
   </footer>
